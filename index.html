@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 40px 16px;
+      background: #f3f5f7;
+      color: #202124;
+      font-family: Arial, sans-serif;
+    }
+
+    .todo-app {
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 28px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px #00000012;
+    }
+
+    h1 { margin: 0 0 20px; }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      align-items: end;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="datetime-local"] {
+      width: 100%;
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid #c9cdd2;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 11px 14px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .add-button,
+    .notification-button {
+      background: #16834a;
+      color: white;
+    }
+
+    .add-button:hover,
+    .notification-button:hover {
+      background: #116b3c;
+    }
+
+    .notification-area {
+      margin-bottom: 18px;
+    }
+
+    #notification-status {
+      margin: 8px 0 0;
+      color: #606770;
+      font-size: 13px;
+    }
+
+    ul {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .task {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: #f7f8f9;
+      border-radius: 8px;
+    }
+
+    .task-copy {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-copy span {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .deadline {
+      margin-top: 5px;
+      color: #606770;
+      font-size: 13px;
+    }
+
+    .deadline.overdue { color: #b42318; }
+
+    .task.completed .task-name {
+      color: #777;
+      text-decoration: line-through;
+    }
+
+    .delete-button {
+      background: #feecec;
+      color: #b42318;
+    }
+
+    .delete-button:hover { background: #fbd5d5; }
+
+    #empty-message {
+      color: #6b7280;
+      text-align: center;
+    }
+
+    @media (max-width: 560px) {
+      form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="todo-app">
+    <h1>My To-Do List</h1>
+
+    <div class="notification-area">
+      <button id="enable-notifications" class="notification-button" type="button">
+        Enable notifications
+      </button>
+      <p id="notification-status" role="status">
+        Keep this page open to receive deadline reminders.
+      </p>
+    </div>
+
+    <form id="todo-form">
+      <div class="field">
+        <label for="todo-input">Task</label>
+        <input
+          id="todo-input"
+          type="text"
+          placeholder="What do you need to do?"
+          required
+        >
+      </div>
+
+      <div class="field">
+        <label for="deadline-input">Deadline</label>
+        <input id="deadline-input" type="datetime-local" required>
+      </div>
+
+      <button class="add-button" type="submit">Add</button>
+    </form>
+
+    <p id="empty-message">No tasks yet. Add one above.</p>
+    <ul id="todo-list"></ul>
+  </main>
+
+  <script>
+    const form = document.querySelector("#todo-form");
+    const input = document.querySelector("#todo-input");
+    const deadlineInput = document.querySelector("#deadline-input");
+    const list = document.querySelector("#todo-list");
+    const emptyMessage = document.querySelector("#empty-message");
+    const enableButton = document.querySelector("#enable-notifications");
+    const notificationStatus = document.querySelector("#notification-status");
+
+    let tasks = [];
+
+    try {
+      const savedTasks = JSON.parse(localStorage.getItem("todoTasks"));
+      tasks = Array.isArray(savedTasks) ? savedTasks : [];
+    } catch {
+      tasks = [];
+    }
+
+    function saveTasks() {
+      localStorage.setItem("todoTasks", JSON.stringify(tasks));
+    }
+
+    function formatDeadline(deadline) {
+      const date = new Date(deadline);
+
+      if (Number.isNaN(date.getTime())) {
+        return "No deadline set";
+      }
+
+      return date.toLocaleString([], {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+    }
+
+    function renderTasks() {
+      list.replaceChildren();
+      emptyMessage.hidden = tasks.length > 0;
+
+      tasks.forEach((task) => {
+        const item = document.createElement("li");
+        item.className = task.completed ? "task completed" : "task";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = Boolean(task.completed);
+        checkbox.setAttribute("aria-label", `Complete ${task.text}`);
+
+        checkbox.addEventListener("change", () => {
+          task.completed = checkbox.checked;
+          saveTasks();
+          renderTasks();
+        });
+
+        const taskCopy = document.createElement("div");
+        taskCopy.className = "task-copy";
+
+        const taskName = document.createElement("span");
+        taskName.className = "task-name";
+        taskName.textContent = task.text;
+
+        const deadline = document.createElement("span");
+        deadline.className = "deadline";
+
+        const deadlineTime = task.deadline
+          ? new Date(task.deadline).getTime()
+          : NaN;
+
+        const isOverdue =
+          !task.completed &&
+          Number.isFinite(deadlineTime) &&
+          deadlineTime < Date.now();
+
+        deadline.textContent = isOverdue
+          ? `Overdue — ${formatDeadline(task.deadline)}`
+          : `Deadline: ${formatDeadline(task.deadline)}`;
+
+        if (isOverdue) {
+          deadline.classList.add("overdue");
+        }
+
+        taskCopy.append(taskName, deadline);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "delete-button";
+        deleteButton.textContent = "Delete";
+        deleteButton.setAttribute("aria-label", `Delete ${task.text}`);
+
+        deleteButton.addEventListener("click", () => {
+          tasks = tasks.filter((savedTask) => savedTask.id !== task.id);
+          saveTasks();
+          renderTasks();
+        });
+
+        item.append(checkbox, taskCopy, deleteButton);
+        list.append(item);
+      });
+    }
+
+    enableButton.addEventListener("click", async () => {
+      if (!("Notification" in window)) {
+        notificationStatus.textContent =
+          "This browser does not support notifications.";
+        return;
+      }
+
+      try {
+        const permission = await Notification.requestPermission();
+
+        if (permission === "granted") {
+          notificationStatus.textContent =
+            "Notifications enabled. Keep this page open for reminders.";
+          checkDueTasks();
+        } else {
+          notificationStatus.textContent =
+            "Notifications were not allowed. Check your browser settings.";
+        }
+      } catch {
+        notificationStatus.textContent =
+          "Could not enable notifications in this browser.";
+      }
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const text = input.value.trim();
+      if (!text || !deadlineInput.value) return;
+
+      tasks.push({
+        id: Date.now() + Math.random(),
+        text,
+        deadline: new Date(deadlineInput.value).toISOString(),
+        completed: false,
+        notified
