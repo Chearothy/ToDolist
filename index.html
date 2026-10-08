@@ -60,15 +60,35 @@
     #week-list>li{align-items:flex-start}
     input[type="datetime-local"]{min-width:0;font-size:10px}
 
-   ul{display:grid;gap:8px;margin:0;padding:0;list-style:none}
-  #list>li{display:flex;align-items:center;gap:10px;padding:8px;background:#f7f8f9;border-radius:10px}
-  .check{appearance:none;-webkit-appearance:none;display:grid;place-items:center;width:20px;height:20px;flex:none;margin:0;padding:0;border:2px solid #aeb4b9;border-radius:50%;background:white;cursor:pointer}
-  .check:checked{background:#08a330;border-color:#08a330}
-  .check:checked::after{content:"✓";color:white;font:bold 17px/1 Arial,sans-serif}
-  .task-name{flex:1;overflow-wrap:anywhere}
-  .task-actions{display:flex;gap:6px}
-  .calendar-button{width:30px;height:30px;padding:0;background:#e8f3ff;color:#135ca7;border:0;font-size:10px}
-  .delete-button{width:auto;padding:9px 12px;background:#feecec;color:#b42318;border:0}
+ 
+  #list > li {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+  }
+
+  .check {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .task-name {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  .task-actions {
+    grid-column: 2;
+    width: 100%;
+  }
+
+  .calendar-button,
+  .delete-button {
+    min-height: 42px;
+  }
+
+
   }
 </style>
 </head>
