@@ -1,310 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To-Do List</title>
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      padding: 40px 16px;
-      background: #f3f5f7;
-      color: #202124;
-      font-family: Arial, sans-serif;
-    }
-
-    .todo-app {
-      max-width: 620px;
-      margin: 0 auto;
-      padding: 28px;
-      background: white;
-      border-radius: 14px;
-      box-shadow: 0 8px 24px #00000012;
-    }
-
-    h1 { margin: 0 0 20px; }
-
-    form {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      align-items: end;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
-
-    input[type="text"],
-    input[type="datetime-local"] {
-      width: 100%;
-      min-width: 0;
-      padding: 12px;
-      border: 1px solid #c9cdd2;
-      border-radius: 8px;
-      font-size: 15px;
-    }
-
-    button {
-      padding: 11px 14px;
-      border: 0;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 15px;
-    }
-
-    .add-button,
-    .notification-button {
-      background: #16834a;
-      color: white;
-    }
-
-    .add-button:hover,
-    .notification-button:hover {
-      background: #116b3c;
-    }
-
-    .notification-area {
-      margin-bottom: 18px;
-    }
-
-    #notification-status {
-      margin: 8px 0 0;
-      color: #606770;
-      font-size: 13px;
-    }
-
-    ul {
-      display: grid;
-      gap: 10px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .task {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px;
-      background: #f7f8f9;
-      border-radius: 8px;
-    }
-
-    .task-copy {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .task-copy span {
-      display: block;
-      overflow-wrap: anywhere;
-    }
-
-    .deadline {
-      margin-top: 5px;
-      color: #606770;
-      font-size: 13px;
-    }
-
-    .deadline.overdue { color: #b42318; }
-
-    .task.completed .task-name {
-      color: #777;
-      text-decoration: line-through;
-    }
-
-    .delete-button {
-      background: #feecec;
-      color: #b42318;
-    }
-
-    .delete-button:hover { background: #fbd5d5; }
-
-    #empty-message {
-      color: #6b7280;
-      text-align: center;
-    }
-
-    @media (max-width: 560px) {
-      form { grid-template-columns: 1fr; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>To-Do List</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:30px 15px;background:#f3f5f7;color:#202124;font-family:Arial,sans-serif}
+  main{max-width:700px;margin:auto;padding:24px;background:white;border-radius:14px}
+  form{display:grid;gap:10px;margin:20px 0}
+  input,button{padding:11px;border:1px solid #ccc;border-radius:8px;font-size:15px}
+  #task{width:100%}
+  .time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  label{display:block;margin-bottom:5px;font-size:14px}
+  .time-row input{width:100%}
+  button{cursor:pointer}
+  .green{width:100%;background:#16834a;color:white;border:0}
+  ul{list-style:none;padding:0;display:grid;gap:8px}
+  li{display:flex;align-items:center;gap:10px;padding:12px;background:#f7f8f9;border-radius:8px}
+  .check{appearance:none;-webkit-appearance:none;display:grid;place-items:center;width:27px;height:27px;flex:none;padding:0;margin:0;border:2px solid #aaa;border-radius:50%;background:white;cursor:pointer}
+  .check:checked{background:#08c400;border-color:#08c400}
+  .check:checked::after{content:"✓";color:white;font:bold 17px/1 Arial,sans-serif}
+  .info{flex:1;overflow-wrap:anywhere}
+  .times{display:block;margin-top:5px;color:#606770;font-size:13px}
+  .done .task-name{color:#777;text-decoration:line-through}
+  .delete{width:auto;background:#feecec;color:#b42318;border:0}
+  #status{font-size:13px;color:#606770}
+  @media(max-width:560px){.time-row{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <main class="todo-app">
-    <h1>My To-Do List</h1>
+<main>
+  <h1>My To-Do List</h1>
 
-    <div class="notification-area">
-      <button id="enable-notifications" class="notification-button" type="button">
-        Enable notifications
-      </button>
-      <p id="notification-status" role="status">
-        Keep this page open to receive deadline reminders.
-      </p>
+  <button id="enable" class="green" type="button">Enable notifications</button>
+  <p id="status">Keep this page open to receive reminders.</p>
+
+  <form id="form">
+    <input id="task" placeholder="What do you need to do?" required>
+
+    <div class="time-row">
+      <div>
+        <label for="start">Start date/time</label>
+        <input id="start" type="datetime-local" required>
+      </div>
+      <div>
+        <label for="deadline">Deadline</label>
+        <input id="deadline" type="datetime-local" required>
+      </div>
     </div>
 
-    <form id="todo-form">
-      <div class="field">
-        <label for="todo-input">Task</label>
-        <input
-          id="todo-input"
-          type="text"
-          placeholder="What do you need to do?"
-          required
-        >
-      </div>
+    <button class="green" type="submit">Add</button>
+  </form>
 
-      <div class="field">
-        <label for="deadline-input">Deadline</label>
-        <input id="deadline-input" type="datetime-local" required>
-      </div>
+  <p id="empty">No tasks yet. Add one above.</p>
+  <ul id="list"></ul>
+</main>
 
-      <button class="add-button" type="submit">Add</button>
-    </form>
+<script>
+  const $ = selector => document.querySelector(selector);
+  const form = $("#form");
+  let tasks = [];
 
-    <p id="empty-message">No tasks yet. Add one above.</p>
-    <ul id="todo-list"></ul>
-  </main>
+  try {
+    tasks = JSON.parse(localStorage.getItem("todoTasks")) || [];
+  } catch {
+    tasks = [];
+  }
 
-  <script>
-    const form = document.querySelector("#todo-form");
-    const input = document.querySelector("#todo-input");
-    const deadlineInput = document.querySelector("#deadline-input");
-    const list = document.querySelector("#todo-list");
-    const emptyMessage = document.querySelector("#empty-message");
-    const enableButton = document.querySelector("#enable-notifications");
-    const notificationStatus = document.querySelector("#notification-status");
+  function save() {
+    localStorage.setItem("todoTasks", JSON.stringify(tasks));
+  }
 
-    let tasks = [];
+  function toLocalInputValue(date) {
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    );
+    return localDate.toISOString().slice(0, 16);
+  }
 
-    try {
-      const savedTasks = JSON.parse(localStorage.getItem("todoTasks"));
-      tasks = Array.isArray(savedTasks) ? savedTasks : [];
-    } catch {
-      tasks = [];
-    }
+  function setDefaultTimes() {
+    const now = new Date();
+    $("#start").value = toLocalInputValue(now);
+    $("#deadline").value = toLocalInputValue(
+      new Date(now.getTime() + 24 * 60 * 60 * 1000)
+    );
+  }
 
-    function saveTasks() {
-      localStorage.setItem("todoTasks", JSON.stringify(tasks));
-    }
+  function shortDate(value) {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+      ? "Not set"
+      : date.toLocaleString([], {dateStyle:"short", timeStyle:"short"});
+  }
 
-    function formatDeadline(deadline) {
-      const date = new Date(deadline);
+  function render() {
+    $("#list").replaceChildren();
+    $("#empty").hidden = tasks.length > 0;
 
-      if (Number.isNaN(date.getTime())) {
-        return "No deadline set";
-      }
+    [...tasks]
+      .sort((a, b) => Number(!!a.completed) - Number(!!b.completed))
+      .forEach(task => {
+        const li = document.createElement("li");
+        li.className = task.completed ? "done" : "";
 
-      return date.toLocaleString([], {
-        dateStyle: "medium",
-        timeStyle: "short"
+        const check = document.createElement("input");
+        check.type = "checkbox";
+        check.className = "check";
+        check.checked = !!task.completed;
+        check.onchange = () => {
+          task.completed = check.checked;
+          save();
+          render();
+        };
+
+        const info = document.createElement("div");
+        info.className = "info";
+
+        const name = document.createElement("span");
+        name.className = "task-name";
+        name.textContent = task.text;
+
+        const times = document.createElement("small");
+        times.className = "times";
+        times.textContent =
+          `Start: ${shortDate(task.startAt)} · Deadline: ${shortDate(task.deadlineAt)}`;
+
+        info.append(name, times);
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "delete";
+        del.textContent = "Delete";
+        del.onclick = () => {
+          tasks = tasks.filter(item => item.id !== task.id);
+          save();
+          render();
+        };
+
+        li.append(check, info, del);
+        $("#list").append(li);
       });
+  }
+
+  form.onsubmit = event => {
+    event.preventDefault();
+
+    const startAt = new Date($("#start").value);
+    const deadlineAt = new Date($("#deadline").value);
+
+    if (deadlineAt < startAt) {
+      $("#deadline").setCustomValidity("Deadline must be after the start time.");
+      $("#deadline").reportValidity();
+      return;
     }
 
-    function renderTasks() {
-      list.replaceChildren();
-      emptyMessage.hidden = tasks.length > 0;
-
-      tasks.forEach((task) => {
-        const item = document.createElement("li");
-        item.className = task.completed ? "task completed" : "task";
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = Boolean(task.completed);
-        checkbox.setAttribute("aria-label", `Complete ${task.text}`);
-
-        checkbox.addEventListener("change", () => {
-          task.completed = checkbox.checked;
-          saveTasks();
-          renderTasks();
-        });
-
-        const taskCopy = document.createElement("div");
-        taskCopy.className = "task-copy";
-
-        const taskName = document.createElement("span");
-        taskName.className = "task-name";
-        taskName.textContent = task.text;
-
-        const deadline = document.createElement("span");
-        deadline.className = "deadline";
-
-        const deadlineTime = task.deadline
-          ? new Date(task.deadline).getTime()
-          : NaN;
-
-        const isOverdue =
-          !task.completed &&
-          Number.isFinite(deadlineTime) &&
-          deadlineTime < Date.now();
-
-        deadline.textContent = isOverdue
-          ? `Overdue — ${formatDeadline(task.deadline)}`
-          : `Deadline: ${formatDeadline(task.deadline)}`;
-
-        if (isOverdue) {
-          deadline.classList.add("overdue");
-        }
-
-        taskCopy.append(taskName, deadline);
-
-        const deleteButton = document.createElement("button");
-        deleteButton.type = "button";
-        deleteButton.className = "delete-button";
-        deleteButton.textContent = "Delete";
-        deleteButton.setAttribute("aria-label", `Delete ${task.text}`);
-
-        deleteButton.addEventListener("click", () => {
-          tasks = tasks.filter((savedTask) => savedTask.id !== task.id);
-          saveTasks();
-          renderTasks();
-        });
-
-        item.append(checkbox, taskCopy, deleteButton);
-        list.append(item);
-      });
-    }
-
-    enableButton.addEventListener("click", async () => {
-      if (!("Notification" in window)) {
-        notificationStatus.textContent =
-          "This browser does not support notifications.";
-        return;
-      }
-
-      try {
-        const permission = await Notification.requestPermission();
-
-        if (permission === "granted") {
-          notificationStatus.textContent =
-            "Notifications enabled. Keep this page open for reminders.";
-          checkDueTasks();
-        } else {
-          notificationStatus.textContent =
-            "Notifications were not allowed. Check your browser settings.";
-        }
-      } catch {
-        notificationStatus.textContent =
-          "Could not enable notifications in this browser.";
-      }
+    $("#deadline").setCustomValidity("");
+    tasks.push({
+      id: Date.now() + Math.random(),
+      text: $("#task").value.trim(),
+      startAt: startAt.toISOString(),
+      deadlineAt: deadlineAt.toISOString(),
+      completed: false,
+      startNotified: false,
+      deadlineNotified: false
     });
 
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
+    save();
+    render();
+    form.reset();
+    setDefaultTimes();
+  };
 
-      const text = input.value.trim();
-      if (!text || !deadlineInput.value) return;
+  $("#deadline").oninput = () => $("#deadline").setCustomValidity("");
 
-      tasks.push({
-        id: Date.now() + Math.random(),
-        text,
-        deadline: new Date(deadlineInput.value).toISOString(),
-        completed: false,
-        notified
+  $("#enable").onclick = async () => {
+    if (!("Notification" in window)) {
+      $("#status").textContent = "Notifications are not supported in this browser.";
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      $("#status").textContent = permission === "granted"
+        ? "Notifications enabled. Keep this page open."
+        : "Please allow notifications in your browser settings.";
+      checkReminders();
+    } catch {
+      $("#status").textContent = "Could not enable notifications.";
+    }
+  };
+
+  function checkReminders() {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+    let changed = false;
+
+    tasks.forEach(task => {
+      if (task.completed) return;
+
+      [
+        ["startAt", "startNotified", "Time to start your task"],
+        ["deadlineAt", "deadlineNotified", "Task deadline reached"]
+      ].forEach(([dateKey, notifiedKey, title]) => {
+        const time = Date.parse(task[dateKey]);
+
+        if (!task[notifiedKey] && Number.isFinite(time) && time <= Date.now()) {
+          try {
+            new Notification(title, {body:task.text});
+            task[notifiedKey] = true;
+            changed = true;
+          } catch {}
+        }
+      });
+    });
+
+    if (changed) save();
+  }
+
+  setDefaultTimes();
+  setInterval(checkReminders, 15000);
+  render();
+  checkReminders();
+</script>
+</body>
+</html>
