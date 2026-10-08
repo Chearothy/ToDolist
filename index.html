@@ -4,41 +4,56 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>To-Do List</title>
-
 <style>
   *{box-sizing:border-box}
   body{margin:0;padding:clamp(16px,4vw,40px);background:#f3f5f7;color:#202124;font-family:Arial,sans-serif}
-  main{max-width:680px;margin:auto;padding:clamp(18px,4vw,28px);background:white;border-radius:16px;box-shadow:0 8px 24px #00000012}
-  h1{margin:0 0 20px;font-size:clamp(24px,6vw,32px)}
+  main{max-width:700px;margin:auto;padding:clamp(18px,4vw,28px);background:white;border-radius:16px;box-shadow:0 8px 24px #00000012}
+  h1{margin-top:0}
   form{display:grid;gap:12px;margin:20px 0}
-  input,button{width:100%;padding:12px;border:1px solid #c9cdd2;border-radius:9px;font:inherit}
+  input,button{padding:12px;border:1px solid #c9cdd2;border-radius:9px;font:inherit}
+  #task{width:100%}
   label{display:block;margin-bottom:6px;font-size:14px}
   .time-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  button{border:0;cursor:pointer}
-  .add-button{background:#16834a;color:white;font-weight:bold}
-  .add-button:hover{background:#116b3c}
-  ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}
-  li{display:flex;align-items:center;gap:12px;padding:12px;background:#f7f8f9;border-radius:10px}
-  .check{appearance:none;-webkit-appearance:none;display:grid;place-items:center;flex:none;width:28px;height:28px;margin:0;padding:0;border:2px solid #aeb4b9;border-radius:50%;background:white;cursor:pointer}
-  .check:checked{border-color:#08a330;background:#08a330}
+  .time-row input{width:100%}
+  button{cursor:pointer}
+  .export-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+  .copy-button,.csv-button,.primary{width:100%;padding:12px;border:0;border-radius:9px;color:white;font-weight:bold}
+  .copy-button,.primary{background:#16834a}
+  .csv-button{background:#2563a6}
+  .copy-button:hover,.primary:hover{background:#116b3c}
+  .csv-button:hover{background:#1d4f86}
+  ul{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+  #list>li{display:flex;align-items:center;gap:10px;padding:12px;background:#f7f8f9;border-radius:10px}
+  .check{appearance:none;-webkit-appearance:none;display:grid;place-items:center;width:28px;height:28px;flex:none;margin:0;padding:0;border:2px solid #aeb4b9;border-radius:50%;background:white;cursor:pointer}
+  .check:checked{background:#08a330;border-color:#08a330}
   .check:checked::after{content:"✓";color:white;font:bold 17px/1 Arial,sans-serif}
   .task-name{flex:1;overflow-wrap:anywhere}
   .done .task-name{color:#777;text-decoration:line-through}
-  .delete-button{width:auto;padding:9px 12px;background:#feecec;color:#b42318}
-  #empty{color:#6b7280;text-align:center}
-
+  .delete-button{width:auto;padding:9px 12px;background:#feecec;color:#b42318;border:0}
+  .weekly-summary{margin-top:26px;padding:16px;background:#f7f8f9;border-radius:10px}
+  .week-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .week-heading h2{margin:0;font-size:20px}
+  .clear-button{width:auto;padding:9px 12px;background:#feecec;color:#b42318;border:0}
+  .clear-button:disabled{opacity:.5;cursor:not-allowed}
+  #week-counts{color:#606770}
+  #week-list>li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid #e1e4e8}
+  .week-record{flex:1;overflow-wrap:anywhere}
+  #empty,#week-empty{color:#6b7280;text-align:center}
   @media(max-width:520px){
-    main{border-radius:12px}
-    .time-row{grid-template-columns:1fr}
-    li{align-items:flex-start}
-    .delete-button{padding:8px 10px}
+    .time-row,.export-buttons{grid-template-columns:1fr}
+    #list>li{align-items:flex-start}
+    .week-heading{align-items:flex-start;flex-direction:column}
   }
 </style>
 </head>
-
 <body>
 <main>
   <h1>My To-Do List</h1>
+
+  <div class="export-buttons">
+    <button id="copyRecords" class="copy-button" type="button">Copy records</button>
+    <button id="downloadCsv" class="csv-button" type="button">Download CSV</button>
+  </div>
 
   <form id="form">
     <input id="task" placeholder="What do you need to do?" required>
@@ -54,11 +69,21 @@
       </div>
     </div>
 
-    <button class="add-button" type="submit">Add & Open Calendar</button>
+    <button class="primary" type="submit">Add & Open Calendar</button>
   </form>
 
   <p id="empty">No tasks yet. Add one above.</p>
   <ul id="list"></ul>
+
+  <section class="weekly-summary">
+    <div class="week-heading">
+      <h2>This Week</h2>
+      <button id="clearDone" class="clear-button" type="button">Clear all done</button>
+    </div>
+    <p id="week-counts"></p>
+    <p id="week-empty">No tasks scheduled this week.</p>
+    <ul id="week-list"></ul>
+  </section>
 </main>
 
 <script>
@@ -81,25 +106,27 @@
       .toISOString().slice(0, 16);
   }
 
- function setDefaultTimes() {
-  const now = new Date();
+  function setDefaultTimes() {
+    const now = new Date();
+    $("#start").value = localDateTime(
+      new Date(now.getTime() + 30 * 60 * 1000)
+    );
+    $("#deadline").value = localDateTime(
+      new Date(now.getTime() + 24 * 60 * 60 * 1000)
+    );
+  }
 
-  $("#start").value = localDateTime(
-    new Date(now.getTime() + 30 * 60 * 1000)
-  );
-
-  $("#deadline").value = localDateTime(
-    new Date(now.getTime() + 24 * 60 * 60 * 1000)
-  );
-}
-
-  function calendarDate(value) {
-    return new Date(value).toISOString()
-      .replace(/[-:]/g, "")
-      .replace(/\.\d{3}Z$/, "Z");
+  function shortDate(value) {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+      ? ""
+      : date.toLocaleString([], {dateStyle:"short", timeStyle:"short"});
   }
 
   function openGoogleCalendar(task) {
+    const calendarDate = value =>
+      new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+
     const params = new URLSearchParams({
       action: "TEMPLATE",
       text: task.text,
@@ -108,8 +135,58 @@
 
     const url = `https://calendar.google.com/calendar/render?${params}`;
     const tab = window.open(url, "_blank");
-
     if (!tab) window.location.href = url;
+  }
+
+  function deleteTask(id) {
+    tasks = tasks.filter(task => task.id !== id);
+    save();
+    render();
+  }
+
+  function renderWeeklySummary() {
+    const monday = new Date();
+    monday.setDate(monday.getDate() - (monday.getDay() + 6) % 7);
+    monday.setHours(0, 0, 0, 0);
+
+    const nextMonday = new Date(monday);
+    nextMonday.setDate(nextMonday.getDate() + 7);
+
+    const weeklyTasks = tasks.filter(task => {
+      const start = new Date(task.startAt);
+      return !Number.isNaN(start.getTime()) &&
+        start >= monday && start < nextMonday;
+    });
+
+    const doneCount = weeklyTasks.filter(task => task.completed).length;
+    $("#week-counts").textContent =
+      `${doneCount} done · ${weeklyTasks.length - doneCount} not yet · ${weeklyTasks.length} total`;
+
+    $("#week-empty").hidden = weeklyTasks.length > 0;
+    $("#week-list").replaceChildren();
+
+    weeklyTasks.forEach(task => {
+      const item = document.createElement("li");
+      const record = document.createElement("span");
+      record.className = "week-record";
+
+      const status = task.completed ? "✓ Done" : "○ Not yet";
+      const completedAt = task.completedAt
+        ? ` — completed ${shortDate(task.completedAt)}`
+        : "";
+      record.textContent = `${status} — ${task.text}${completedAt}`;
+
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "delete-button";
+      remove.textContent = "Delete";
+      remove.onclick = () => deleteTask(task.id);
+
+      item.append(record, remove);
+      $("#week-list").append(item);
+    });
+
+    $("#clearDone").disabled = !tasks.some(task => task.completed);
   }
 
   function render() {
@@ -120,6 +197,7 @@
       .sort((a, b) => Number(!!a.completed) - Number(!!b.completed))
       .forEach(task => {
         const item = document.createElement("li");
+        item.className = task.completed ? "done" : "";
 
         const check = document.createElement("input");
         check.type = "checkbox";
@@ -128,6 +206,7 @@
         check.setAttribute("aria-label", `Mark ${task.text} complete`);
         check.onchange = () => {
           task.completed = check.checked;
+          task.completedAt = check.checked ? new Date().toISOString() : null;
           save();
           render();
         };
@@ -140,21 +219,19 @@
         remove.type = "button";
         remove.className = "delete-button";
         remove.textContent = "Delete";
-        remove.onclick = () => {
-          tasks = tasks.filter(saved => saved.id !== task.id);
-          save();
-          render();
-        };
+        remove.onclick = () => deleteTask(task.id);
 
-        item.className = task.completed ? "done" : "";
         item.append(check, name, remove);
         $("#list").append(item);
       });
+
+    renderWeeklySummary();
   }
 
   form.onsubmit = event => {
     event.preventDefault();
 
+    const text = $("#task").value.trim();
     const startAt = new Date($("#start").value);
     const deadlineAt = new Date($("#deadline").value);
 
@@ -168,22 +245,74 @@
 
     const task = {
       id: Date.now() + Math.random(),
-      text: $("#task").value.trim(),
+      text,
       startAt: startAt.toISOString(),
       deadlineAt: deadlineAt.toISOString(),
-      completed: false
+      completed: false,
+      completedAt: null
     };
 
     tasks.push(task);
     save();
     render();
     openGoogleCalendar(task);
-
     form.reset();
     setDefaultTimes();
   };
 
   $("#deadline").oninput = () => $("#deadline").setCustomValidity("");
+
+  $("#clearDone").onclick = () => {
+    const count = tasks.filter(task => task.completed).length;
+    if (!count || !confirm(`Delete all ${count} completed task(s) from this app?`)) return;
+
+    tasks = tasks.filter(task => !task.completed);
+    save();
+    render();
+  };
+
+  function exportRows() {
+    return [
+      ["Task", "Status", "Start", "Deadline", "Completed at"],
+      ...tasks.map(task => [
+        task.text,
+        task.completed ? "Done" : "Not yet",
+        shortDate(task.startAt),
+        shortDate(task.deadlineAt),
+        task.completedAt ? shortDate(task.completedAt) : ""
+      ])
+    ];
+  }
+
+  $("#copyRecords").onclick = async () => {
+    const data = exportRows()
+      .map(row => row.map(value => String(value).replace(/\t|\r?\n/g, " ")).join("\t"))
+      .join("\n");
+
+    try {
+      await navigator.clipboard.writeText(data);
+      alert("Records copied. Paste them into Google Sheets.");
+    } catch {
+      alert("Copy failed. Use the Download CSV button instead.");
+    }
+  };
+
+  $("#downloadCsv").onclick = () => {
+    const csv = exportRows()
+      .map(row => row.map(value =>
+        `"${String(value).replace(/"/g, '""')}"`
+      ).join(","))
+      .join("\r\n");
+
+    const blob = new Blob(["\uFEFF", csv], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "todo-list-records.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   setDefaultTimes();
   render();
