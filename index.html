@@ -29,6 +29,7 @@
   .check:checked{background:#08a330;border-color:#08a330}
   .check:checked::after{content:"✓";color:white;font:bold 17px/1 Arial,sans-serif}
   .task-name{flex:1;overflow-wrap:anywhere}
+  .done .task-name{color:#777;text-decoration:line-through}
   .task-actions{display:flex;gap:6px}
   .calendar-button{width:40px;height:40px;padding:0;background:#e8f3ff;color:#135ca7;border:0;font-size:24px}
   .delete-button{width:auto;padding:9px 12px;background:#feecec;color:#b42318;border:0}
@@ -46,45 +47,27 @@
   #empty,#week-empty{color:#6b7280;text-align:center}
 
   @media(max-width:520px){
-  body{padding:12px}
-  main{padding:16px;border-radius:12px}
-  h1{font-size:25px}
-
-  .time-row{grid-template-columns:1fr}
-  .export-buttons,.form-actions{grid-template-columns:1fr 1fr;gap:8px}
-  .export-buttons button,.form-actions button{
-    min-height:44px;padding:9px 5px;font-size:13px
+    body{padding:12px}
+    main{padding:16px;border-radius:12px}
+    h1{font-size:25px}
+    .time-row{grid-template-columns:1fr}
+    .export-buttons,.form-actions{grid-template-columns:1fr 1fr;gap:8px}
+    .export-buttons button,.form-actions button{min-height:44px;padding:9px 5px;font-size:13px}
+    #list>li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px}
+    .task-name{grid-column:2;min-width:0}
+    .task-actions{grid-column:3;width:auto;padding:0;flex-wrap:nowrap}
+    .calendar-button{width:36px;height:40px;font-size:20px}
+    .delete-button{min-height:40px;padding:8px;font-size:13px;white-space:nowrap}
+    .week-heading{align-items:flex-start;flex-direction:column}
+    #week-list>li{align-items:flex-start}
+    input[type="datetime-local"]{min-width:0;font-size:14px}
   }
 
-  /* Keep checkbox, task, +, and Delete on one row */
-  #list>li{
-    display:grid;
-    grid-template-columns:28px minmax(0,1fr) auto;
-    align-items:center;
-    gap:8px;
-    padding:10px;
+  @media(max-width:360px){
+    #list>li{gap:6px;padding:8px}
+    .calendar-button{width:32px}
+    .delete-button{padding:7px 6px;font-size:12px}
   }
-  .task-name{grid-column:2;min-width:0}
-  .task-actions{
-    grid-column:3;
-    width:auto;
-    padding:0;
-    flex-wrap:nowrap;
-  }
-  .calendar-button{width:36px;height:40px;font-size:20px}
-  .delete-button{padding:8px;font-size:13px;white-space:nowrap}
-
-  .week-heading{align-items:flex-start;flex-direction:column}
-  #week-list>li{align-items:flex-start}
-  input[type="datetime-local"]{min-width:0;font-size:14px}
-}
-
-@media(max-width:360px){
-  #list>li{gap:6px;padding:8px}
-  .calendar-button{width:32px}
-  .delete-button{padding:7px 6px;font-size:12px}
-}
-
 </style>
 </head>
 <body>
@@ -116,7 +99,7 @@
     </div>
   </form>
 
-  <p id="empty">No unfinished tasks.</p>
+  <p id="empty">No tasks yet. Add one above.</p>
   <ul id="list"></ul>
   <button id="taskMore" class="see-more" type="button" hidden>See more</button>
 
@@ -191,10 +174,12 @@
 
   function makeTaskRow(task) {
     const item = document.createElement("li");
+    item.className = task.completed ? "done" : "";
 
     const check = document.createElement("input");
     check.type = "checkbox";
     check.className = "check";
+    check.checked = !!task.completed;
     check.setAttribute("aria-label", `Mark ${task.text} complete`);
     check.onchange = () => {
       task.completed = check.checked;
@@ -283,12 +268,20 @@
     $("#list").replaceChildren();
 
     const pending = tasks.filter(task => !task.completed).sort(newestFirst);
-    $("#empty").hidden = pending.length > 0;
+    const done = tasks
+      .filter(task => task.completed)
+      .sort((a, b) =>
+        new Date(b.completedAt || b.startAt) -
+        new Date(a.completedAt || a.startAt)
+      );
 
-    const visiblePending = expanded.tasks ? pending : pending.slice(0, 5);
-    visiblePending.forEach(task => $("#list").append(makeTaskRow(task)));
+    const allTasks = [...pending, ...done];
+    const visibleTasks = expanded.tasks ? allTasks : allTasks.slice(0, 5);
 
-    $("#taskMore").hidden = pending.length <= 5;
+    $("#empty").hidden = allTasks.length > 0;
+    visibleTasks.forEach(task => $("#list").append(makeTaskRow(task)));
+
+    $("#taskMore").hidden = allTasks.length <= 5;
     $("#taskMore").textContent = expanded.tasks ? "See less" : "See more";
 
     renderWeeklySummary();
