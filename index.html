@@ -81,15 +81,17 @@
       .toISOString().slice(0, 16);
   }
 
-  function setDefaultTimes() {
+ function setDefaultTimes() {
+  const now = new Date();
 
-    const now = new Date();
-    $("#start").value = localDateTime(now
-    );
-    $("#deadline").value = localDateTime(
-      new Date(now.getTime() + 24 * 60 * 60 * 1000)
-    );
-  }
+  $("#start").value = localDateTime(
+    new Date(now.getTime() + 30 * 60 * 1000)
+  );
+
+  $("#deadline").value = localDateTime(
+    new Date(now.getTime() + 24 * 60 * 60 * 1000)
+  );
+}
 
   function calendarDate(value) {
     return new Date(value).toISOString()
