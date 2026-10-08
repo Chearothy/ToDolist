@@ -24,9 +24,7 @@
   .info{flex:1;overflow-wrap:anywhere}
   .times{display:block;margin-top:5px;color:#606770;font-size:13px}
   .done .task-name{color:#777;text-decoration:line-through}
-  .actions{display:flex;gap:6px;flex-wrap:wrap}
-  .calendar-button{background:#e8f3ff;color:#135ca7;border:0}
-  .delete{background:#feecec;color:#b42318;border:0}
+  .delete{width:auto;background:#feecec;color:#b42318;border:0}
   #status{font-size:13px;color:#606770}
   @media(max-width:560px){.time-row{grid-template-columns:1fr}}
 </style>
@@ -66,9 +64,7 @@
 
   try {
     tasks = JSON.parse(localStorage.getItem("todoTasks")) || [];
-  } catch {
-    tasks = [];
-  }
+  } catch {}
 
   function save() {
     localStorage.setItem("todoTasks", JSON.stringify(tasks));
@@ -76,8 +72,7 @@
 
   function toLocalInputValue(date) {
     return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
+      .toISOString().slice(0, 16);
   }
 
   function setDefaultTimes() {
@@ -95,47 +90,21 @@
       : date.toLocaleString([], {dateStyle:"short", timeStyle:"short"});
   }
 
-  function escapeICS(text) {
-    return String(text)
-      .replace(/\\/g, "\\\\")
-      .replace(/\r?\n/g, "\\n")
-      .replace(/,/g, "\\,")
-      .replace(/;/g, "\\;");
-  }
+  function openGoogleCalendar(task) {
+    const calendarDate = value =>
+      new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 
-  function icsDate(value) {
-    return new Date(value).toISOString()
-      .replace(/[-:]/g, "")
-      .replace(/\.\d{3}Z$/, "Z");
-  }
+    const params = new URLSearchParams({
+      action: "TEMPLATE",
+      text: task.text,
+      dates: `${calendarDate(task.startAt)}/${calendarDate(task.deadlineAt)}`,
+      details: "Task created from To-Do List. Set a reminder in Google Calendar."
+    });
 
-  function addToCalendar(task) {
-    const ics = [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "PRODID:-//RothyListToDo//EN",
-      "CALSCALE:GREGORIAN",
-      "BEGIN:VEVENT",
-      `UID:${task.id}@rothylisttodo.local`,
-      `DTSTAMP:${icsDate(new Date())}`,
-      `DTSTART:${icsDate(task.startAt)}`,
-      `DTEND:${icsDate(task.deadlineAt)}`,
-      `SUMMARY:${escapeICS(task.text)}`,
-      "END:VEVENT",
-      "END:VCALENDAR"
-    ].join("\r\n");
-
-    const blob = new Blob([ics], {type:"text/calendar;charset=utf-8"});
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    const filename = task.text.replace(/[\\/:*?"<>|]/g, "-").slice(0, 50) || "todo-task";
-
-    link.href = url;
-    link.download = `${filename}.ics`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    window.open(
+      `https://calendar.google.com/calendar/render?${params}`,
+      "_blank"
+    );
   }
 
   function render() {
@@ -172,15 +141,6 @@
 
         info.append(name, times);
 
-        const actions = document.createElement("div");
-        actions.className = "actions";
-
-        const calendar = document.createElement("button");
-        calendar.type = "button";
-        calendar.className = "calendar-button";
-        calendar.textContent = "Add to Calendar";
-        calendar.onclick = () => addToCalendar(task);
-
         const del = document.createElement("button");
         del.type = "button";
         del.className = "delete";
@@ -191,8 +151,7 @@
           render();
         };
 
-        actions.append(calendar, del);
-        li.append(check, info, actions);
+        li.append(check, info, del);
         $("#list").append(li);
       });
   }
@@ -210,18 +169,20 @@
     }
 
     $("#deadline").setCustomValidity("");
-    tasks.push({
+
+    const task = {
       id: Date.now() + Math.random(),
       text: $("#task").value.trim(),
       startAt: startAt.toISOString(),
       deadlineAt: deadlineAt.toISOString(),
-      completed: false,
-      startNotified: false,
-      deadlineNotified: false
-    });
+      completed: false
+    };
 
+    tasks.push(task);
     save();
     render();
+    openGoogleCalendar(task);
+
     form.reset();
     setDefaultTimes();
   };
@@ -234,48 +195,14 @@
       return;
     }
 
-    try {
-      const permission = await Notification.requestPermission();
-      $("#status").textContent = permission === "granted"
-        ? "Notifications enabled. Keep this page open."
-        : "Please allow notifications in your browser settings.";
-      checkReminders();
-    } catch {
-      $("#status").textContent = "Could not enable notifications.";
-    }
+    const permission = await Notification.requestPermission();
+    $("#status").textContent = permission === "granted"
+      ? "Notifications enabled. Keep this page open."
+      : "Please allow notifications in your browser settings.";
   };
 
-  function checkReminders() {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-
-    let changed = false;
-
-    tasks.forEach(task => {
-      if (task.completed) return;
-
-      [
-        ["startAt", "startNotified", "Time to start your task"],
-        ["deadlineAt", "deadlineNotified", "Task deadline reached"]
-      ].forEach(([dateKey, notifiedKey, title]) => {
-        const time = Date.parse(task[dateKey]);
-
-        if (!task[notifiedKey] && Number.isFinite(time) && time <= Date.now()) {
-          try {
-            new Notification(title, {body:task.text});
-            task[notifiedKey] = true;
-            changed = true;
-          } catch {}
-        }
-      });
-    });
-
-    if (changed) save();
-  }
-
   setDefaultTimes();
-  setInterval(checkReminders, 15000);
   render();
-  checkReminders();
 </script>
 </body>
 </html>
