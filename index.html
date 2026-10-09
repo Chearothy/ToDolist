@@ -133,12 +133,27 @@
     return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
       .toISOString().slice(0, 16);
   }
+function setDefaultTimes() {
+  const now = new Date();
+  const start = new Date(now);
 
-  function setDefaultTimes() {
-    const now = new Date();
-    $("#start").value = localDateTime(new Date(now.getTime() + 30 * 60 * 1000));
-    $("#deadline").value = localDateTime(new Date(now.getTime() + 60 * 60 * 1000));
+  start.setSeconds(0, 0);
+  if (now.getSeconds() > 0 || now.getMilliseconds() > 0) {
+    start.setMinutes(start.getMinutes() + 1);
   }
+  start.setMinutes(Math.ceil(start.getMinutes() / 30) * 30);
+
+  const deadline = new Date(start.getTime() + 60 * 60 * 1000);
+
+  $("#start").value = localDateTime(start);
+  $("#deadline").value = localDateTime(deadline);
+}
+ 
+  // function setDefaultTimes() {
+  //   const now = new Date();
+  //   $("#start").value = localDateTime(new Date(now.getTime() + 30 * 60 * 1000));
+  //   $("#deadline").value = localDateTime(new Date(now.getTime() + 60 * 60 * 1000));
+  // }
 
   function shortDate(value) {
     const date = new Date(value);
