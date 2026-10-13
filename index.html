@@ -1,766 +1,433 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>To-Do List</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My To-Do List</title>
   <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --surface: #fff;
+      --text: #202637;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #16a085;
+      --accent-dark: #11806b;
+      --danger: #c0392b;
+      --shadow: 0 8px 24px rgba(31, 41, 55, .07);
+    }
+
+    body.dark {
+      color-scheme: dark;
+      --bg: #151923;
+      --surface: #202633;
+      --text: #f3f4f6;
+      --muted: #aab1bd;
+      --border: #394150;
+      --accent: #34c9a5;
+      --accent-dark: #25a889;
+      --danger: #ff8177;
+      --shadow: 0 8px 24px rgba(0, 0, 0, .2);
+    }
+
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      padding: clamp(16px, 4vw, 40px);
-      background: #f3f5f7;
-      color: #202124;
-      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    main {
-      max-width: 700px;
-      margin: auto;
-      padding: clamp(18px, 4vw, 28px);
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px #00000012;
-    }
+    button, input { font: inherit; }
 
-    .title-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .title-row h1 { margin: 0; }
-
-    .title-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .page-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      padding: 0 14px;
-      border-radius: 9px;
-      background: #16834a;
-      color: white;
-      font-weight: bold;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .page-link:hover { background: #126b3c; }
-
-    button, input {
-      padding: 12px;
-      border: 1px solid #c9cdd2;
-      border-radius: 9px;
-      font: inherit;
-    }
-
-    button { cursor: pointer; }
-
-    .settings-button {
-      width: 44px;
-      height: 44px;
-      padding: 0;
-      background: #f1f3f5;
-      border: 0;
-      font-size: 24px;
-    }
-
-    .settings-panel {
-      display: grid;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .settings-panel[hidden],
-    .weekly-summary[hidden] {
-      display: none;
-    }
-
-    .export-buttons,
-    .form-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .export-buttons { margin: 0; }
-
-    .export-buttons button,
-    .form-actions button {
-      width: 100%;
-      min-width: 0;
-      padding: 11px 6px;
-      color: white;
-      border: 0;
-      font-weight: bold;
-    }
-
-    .copy-button,
-    .primary {
-      background: #16834a;
-    }
-
-    .csv-button {
-      background: #2563a6;
-    }
-
-    .week-toggle {
-      width: 100%;
-      padding: 11px;
-      background: #e8f3ff;
-      color: #135ca7;
-      border: 0;
-      font-weight: bold;
-    }
-
-    form {
-      display: grid;
-      gap: 12px;
-      margin: 20px 0;
-    }
-
-    #task { width: 100%; }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
-
-    .time-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .time-row input { width: 100%; }
-
-    .calendar-form-button {
-      background: #e8f3ff !important;
-      color: #135ca7 !important;
-    }
-
-    ul {
-      display: grid;
-      gap: 8px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    #list > li {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px;
-      background: #f7f8f9;
-      border-radius: 10px;
-    }
-
-    .check {
-      appearance: none;
-      -webkit-appearance: none;
-      display: grid;
-      place-items: center;
-      width: 28px;
-      height: 28px;
-      flex: none;
-      margin: 0;
-      padding: 0;
-      border: 2px solid #aeb4b9;
-      border-radius: 50%;
-      background: white;
+    button {
       cursor: pointer;
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 14px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 650;
     }
 
-    .check:checked {
-      background: #08a330;
-      border-color: #08a330;
+    button:hover { background: var(--accent-dark); }
+    button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    button.secondary:hover { background: var(--bg); }
+    button.danger { background: transparent; color: var(--danger); border: 1px solid var(--border); }
+    button.small { padding: 6px 10px; font-size: 14px; }
+
+    .page { max-width: 920px; margin: 0 auto; padding: 28px 18px 56px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+    h1 { margin: 0; font-size: clamp(24px, 4vw, 34px); }
+    h2 { margin: 0; font-size: 21px; }
+    p { margin: 6px 0 0; }
+    .muted { color: var(--muted); font-size: 14px; }
+    .header-actions, .button-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
     }
 
-    .check:checked::after {
-      content: "✓";
-      color: white;
-      font: bold 17px/1 Arial, sans-serif;
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 16px 0;
     }
 
-    .task-name {
-      flex: 1;
-      overflow-wrap: anywhere;
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    label { color: var(--muted); font-size: 14px; font-weight: 600; }
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9px;
     }
 
-    .done.task-name {
-      color: #777;
-      text-decoration: line-through;
-    }
-
-    .task-actions {
+    .section-heading {
       display: flex;
-      gap: 6px;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
     }
 
-    .calendar-button {
-      width: 40px;
-      height: 40px;
-      padding: 0;
-      background: #e8f3ff;
-      color: #135ca7;
-      border: 0;
-      font-size: 24px;
-    }
-
-    .delete-button {
-      width: auto;
-      padding: 9px 12px;
-      background: #feecec;
-      color: #b42318;
-      border: 0;
-    }
-
-    .weekly-summary {
-      margin-top: 26px;
-      padding: 16px;
-      background: #f7f8f9;
+    .task-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    .task {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 13px;
+      border: 1px solid var(--border);
       border-radius: 10px;
+      background: var(--surface);
     }
 
-    .week-heading {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
+    .task input[type="checkbox"] { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--accent); }
+    .task-content { flex: 1; min-width: 0; }
+    .task-title { overflow-wrap: anywhere; font-weight: 650; }
+    .task.completed .task-title { color: var(--muted); text-decoration: line-through; }
+    .task-meta { margin-top: 3px; color: var(--muted); font-size: 13px; }
+    .empty { padding: 16px 4px; color: var(--muted); }
+    .calendar-panel[hidden] { display: none; }
+    footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 24px; }
 
-    .week-heading h2 {
-      margin: 0;
-      font-size: 20px;
-    }
-
-    .clear-button,
-    .see-more {
-      width: auto;
-      padding: 9px 12px;
-      border: 0;
-      border-radius: 8px;
-    }
-
-    .clear-button {
-      background: #feecec;
-      color: #b42318;
-    }
-
-    .clear-button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .see-more {
-      margin-top: 10px;
-      background: #e8f3ff;
-      color: #135ca7;
-    }
-
-    #week-counts { color: #606770; }
-
-    #week-list > li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 8px 0;
-      border-top: 1px solid #e1e4e8;
-    }
-
-    .week-record {
-      flex: 1;
-      overflow-wrap: anywhere;
-    }
-
-    #empty,
-    #week-empty {
-      color: #6b7280;
-      text-align: center;
-    }
-
-    @media (max-width: 520px) {
-      body { padding: 12px; }
-
-      main {
-        padding: 16px;
-        border-radius: 12px;
-      }
-
-      h1 { font-size: 25px; }
-
-      .title-row {
-        align-items: flex-start;
-      }
-
-      .title-actions {
-        flex-shrink: 0;
-      }
-
-      .page-link {
-        min-height: 40px;
-        padding: 0 10px;
-        font-size: 13px;
-      }
-
-      .time-row { grid-template-columns: 1fr; }
-
-      .export-buttons,
-      .form-actions {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-
-      .export-buttons button,
-      .form-actions button {
-        min-height: 44px;
-        padding: 9px 5px;
-        font-size: 13px;
-      }
-
-      #list > li {
-        display: grid;
-        grid-template-columns: 28px minmax(0, 1fr) auto;
-        align-items: center;
-        gap: 8px;
-        padding: 10px;
-      }
-
-      .task-name {
-        grid-column: 2;
-        min-width: 0;
-      }
-
-      .task-actions {
-        grid-column: 3;
-        width: auto;
-        padding: 0;
-        flex-wrap: nowrap;
-      }
-
-      .calendar-button {
-        width: 36px;
-        height: 40px;
-        font-size: 20px;
-      }
-
-      .delete-button {
-        min-height: 40px;
-        padding: 8px;
-        font-size: 13px;
-        white-space: nowrap;
-      }
-
-      .week-heading {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      #week-list > li { align-items: flex-start; }
-
-      input[type="datetime-local"] {
-        min-width: 0;
-        font-size: 14px;
-      }
-    }
-
-    @media (max-width: 360px) {
-      .title-actions { gap: 5px; }
-
-      .page-link {
-        padding: 0 7px;
-        font-size: 12px;
-      }
-
-      #list > li {
-        gap: 6px;
-        padding: 8px;
-      }
-
-      .calendar-button { width: 32px; }
-
-      .delete-button {
-        padding: 7px 6px;
-        font-size: 12px;
-      }
+    @media (max-width: 620px) {
+      .page { padding: 20px 12px 40px; }
+      header { align-items: flex-start; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .card { padding: 16px; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <div class="title-row">
-      <h1>My To-Do List</h1>
-      <div class="title-actions">
-        <a class="page-link" href="Kotluy.html">Money Tracker</a>
-        <button
-          id="settingsToggle"
-          class="settings-button"
-          type="button"
-          aria-label="Settings"
-          aria-expanded="false"
-          aria-controls="settingsPanel"
-        >⚙</button>
+  <main class="page">
+    <header>
+      <div>
+        <h1>My To-Do List</h1>
+        <p class="muted">Keep track of what you need to do.</p>
       </div>
-    </div>
-
-    <div id="settingsPanel" class="settings-panel" hidden>
-      <div class="export-buttons">
-        <button id="copyRecords" class="copy-button" type="button">Copy records</button>
-        <button id="downloadCsv" class="csv-button" type="button">Download CSV</button>
+      <div class="header-actions">
+        <button id="weekButton" class="secondary" type="button">This Week</button>
+        <button id="settingsButton" class="secondary" type="button" aria-label="Toggle dark mode">Settings</button>
       </div>
-      <button
-        id="weekToggle"
-        class="week-toggle"
-        type="button"
-        aria-expanded="false"
-        aria-controls="weeklySummary"
-      >This Week</button>
-    </div>
+    </header>
 
-    <form id="form">
-      <input id="task" placeholder="What do you need to do?" required>
-
-      <div class="time-row">
-        <div>
-          <label for="start">Start date/time</label>
-          <input id="start" type="datetime-local" required>
+    <section class="card">
+      <h2>Add a task</h2>
+      <form id="taskForm">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="taskTitle">Task</label>
+            <input id="taskTitle" name="taskTitle" type="text" placeholder="What do you need to do?" required />
+          </div>
+          <div class="field">
+            <label for="startAt">Start date/time</label>
+            <input id="startAt" name="startAt" type="datetime-local" />
+          </div>
+          <div class="field">
+            <label for="deadline">Deadline</label>
+            <input id="deadline" name="deadline" type="datetime-local" />
+          </div>
         </div>
-        <div>
-          <label for="deadline">Deadline</label>
-          <input id="deadline" type="datetime-local" required>
+        <div class="button-row">
+          <button type="submit">Add Task</button>
+          <button id="calendarButton" class="secondary" type="button">Add Calendar</button>
+          <button id="copyButton" class="secondary" type="button">Copy records</button>
+          <button id="downloadButton" class="secondary" type="button">Download CSV</button>
         </div>
-      </div>
-
-      <div class="form-actions">
-        <button class="primary" type="submit">Add Task</button>
-        <button id="addCalendar" class="calendar-form-button" type="button">Add Calendar</button>
-      </div>
-    </form>
-
-    <p id="empty">No tasks yet. Add one above.</p>
-    <ul id="list"></ul>
-    <button id="taskMore" class="see-more" type="button" hidden>See more</button>
-
-    <section id="weeklySummary" class="weekly-summary" hidden>
-      <div class="week-heading">
-        <h2>This Week</h2>
-        <button id="clearDone" class="clear-button" type="button">Clear all done</button>
-      </div>
-      <p id="week-counts"></p>
-      <p id="week-empty">No tasks scheduled this week.</p>
-      <ul id="week-list"></ul>
-      <button id="weekMore" class="see-more" type="button" hidden>See more</button>
+      </form>
     </section>
+
+    <section id="calendarPanel" class="card calendar-panel" hidden>
+      <div class="section-heading">
+        <div>
+          <h2>Calendar</h2>
+          <p class="muted">Tasks with dates are listed below.</p>
+        </div>
+        <button id="closeCalendarButton" class="secondary small" type="button">Close</button>
+      </div>
+      <ul id="calendarList" class="task-list"></ul>
+    </section>
+
+    <section class="card">
+      <div class="section-heading">
+        <div>
+          <h2>All tasks</h2>
+          <p class="muted">Completed tasks stay here until you clear them.</p>
+        </div>
+        <button id="clearDoneButton" class="danger small" type="button">Clear all done</button>
+      </div>
+      <ul id="allTasksList" class="task-list"></ul>
+    </section>
+
+    <section id="weekSection" class="card">
+      <div class="section-heading">
+        <div>
+          <h2>This Week</h2>
+          <p class="muted">All unfinished tasks, including tasks without deadlines.</p>
+        </div>
+      </div>
+      <ul id="weekTasksList" class="task-list"></ul>
+    </section>
+
+    <footer>Tasks are saved in this browser.</footer>
   </main>
 
   <script>
-    const $ = selector => document.querySelector(selector);
-    const form = $("#form");
-    const expanded = { tasks: false, week: false };
-    let tasks = [];
+    const STORAGE_KEY = "todo-app-tasks-v1";
+    const THEME_KEY = "todo-app-dark-mode";
 
-    try {
-      tasks = JSON.parse(localStorage.getItem("todoTasks")) || [];
-    } catch {
-      tasks = [];
-    }
+    const form = document.getElementById("taskForm");
+    const titleInput = document.getElementById("taskTitle");
+    const startInput = document.getElementById("startAt");
+    const deadlineInput = document.getElementById("deadline");
+    const allTasksList = document.getElementById("allTasksList");
+    const weekTasksList = document.getElementById("weekTasksList");
+    const calendarList = document.getElementById("calendarList");
+    const calendarPanel = document.getElementById("calendarPanel");
 
-    function save() {
-      localStorage.setItem("todoTasks", JSON.stringify(tasks));
-    }
+    let tasks = loadTasks();
 
-    function localDateTime(date) {
-      return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, 16);
-    }
-
-    function setDefaultTimes() {
-      const now = new Date();
-      const start = new Date(now);
-
-      start.setSeconds(0, 0);
-      if (now.getSeconds() > 0 || now.getMilliseconds() > 0) {
-        start.setMinutes(start.getMinutes() + 1);
+    function loadTasks() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(saved) ? saved : [];
+      } catch {
+        return [];
       }
-      start.setMinutes(Math.ceil(start.getMinutes() / 30) * 30);
-
-      const deadline = new Date(start.getTime() + 60 * 60 * 1000);
-
-      $("#start").value = localDateTime(start);
-      $("#deadline").value = localDateTime(deadline);
     }
 
-    function shortDate(value) {
+    function saveTasks() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
       const date = new Date(value);
-      return Number.isNaN(date.getTime())
-        ? ""
-        : date.toLocaleString([], { dateStyle: "short", timeStyle: "short" });
+      if (Number.isNaN(date.getTime())) return "";
+      return date.toLocaleString([], {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
     }
 
-    function newestFirst(a, b) {
-      return new Date(b.createdAt || b.startAt) - new Date(a.createdAt || a.startAt);
+    function dateSortValue(task) {
+      const value = task.deadline || task.startAt;
+      return value ? new Date(value).getTime() : Number.MAX_SAFE_INTEGER;
     }
 
-    function openGoogleCalendar(task) {
-      const calendarDate = value =>
-        new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+    function makeTaskElement(task) {
+      const item = document.createElement("li");
+      item.className = "task" + (task.completed ? " completed" : "");
 
-      const params = new URLSearchParams({
-        action: "TEMPLATE",
-        text: task.text,
-        dates: `${calendarDate(task.startAt)}/${calendarDate(task.deadlineAt)}`
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = Boolean(task.completed);
+      checkbox.setAttribute("aria-label", "Mark task complete");
+      checkbox.addEventListener("change", () => {
+        task.completed = checkbox.checked;
+        saveTasks();
+        render();
       });
 
-      const url = `https://calendar.google.com/calendar/render?${params}`;
-      const tab = window.open(url, "_blank");
-      if (!tab) window.location.href = url;
-    }
+      const content = document.createElement("div");
+      content.className = "task-content";
 
-    function deleteTask(id) {
-      tasks = tasks.filter(task => task.id !== id);
-      save();
-      render();
-    }
+      const title = document.createElement("div");
+      title.className = "task-title";
+      title.textContent = task.title;
 
-    function makeTaskRow(task) {
-      const item = document.createElement("li");
+      const meta = document.createElement("div");
+      meta.className = "task-meta";
+      const details = [];
+      if (task.startAt) details.push("Starts: " + formatDate(task.startAt));
+      if (task.deadline) details.push("Deadline: " + formatDate(task.deadline));
+      meta.textContent = details.join(" · ") || "No date set";
 
-      const check = document.createElement("input");
-      check.type = "checkbox";
-      check.className = "check";
-      check.checked = !!task.completed;
-      check.setAttribute("aria-label", `Mark ${task.text} complete`);
-      check.onchange = () => {
-        task.completed = check.checked;
-        task.completedAt = check.checked ? new Date().toISOString() : null;
-        save();
+      content.append(title, meta);
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "danger small";
+      deleteButton.textContent = "Delete";
+      deleteButton.setAttribute("aria-label", "Delete " + task.title);
+      deleteButton.addEventListener("click", () => {
+        tasks = tasks.filter(item => item.id !== task.id);
+        saveTasks();
         render();
-      };
+      });
 
-      const name = document.createElement("span");
-      name.className = task.completed ? "task-name done" : "task-name";
-      name.textContent = task.text;
-
-      const actions = document.createElement("div");
-      actions.className = "task-actions";
-
-      const calendar = document.createElement("button");
-      calendar.type = "button";
-      calendar.className = "calendar-button";
-      calendar.textContent = "+";
-      calendar.title = "Add to Calendar";
-      calendar.setAttribute("aria-label", `Add ${task.text} to Calendar`);
-      calendar.onclick = () => openGoogleCalendar(task);
-
-      const remove = document.createElement("button");
-      remove.type = "button";
-      remove.className = "delete-button";
-      remove.textContent = "Delete";
-      remove.onclick = () => deleteTask(task.id);
-
-      actions.append(calendar, remove);
-      item.append(check, name, actions);
+      item.append(checkbox, content, deleteButton);
       return item;
     }
 
-    function renderWeeklySummary() {
-      const monday = new Date();
-      monday.setDate(monday.getDate() - (monday.getDay() + 6) % 7);
-      monday.setHours(0, 0, 0, 0);
-
-      const nextMonday = new Date(monday);
-      nextMonday.setDate(nextMonday.getDate() + 7);
-
-      const weeklyTasks = tasks
-        .filter(task => {
-          const start = new Date(task.startAt);
-          return !Number.isNaN(start.getTime()) && start >= monday && start < nextMonday;
-        })
-        .sort(newestFirst);
-
-      const doneCount = weeklyTasks.filter(task => task.completed).length;
-      $("#week-counts").textContent =
-        `${doneCount} done · ${weeklyTasks.length - doneCount} not yet · ${weeklyTasks.length} total`;
-
-      $("#week-empty").hidden = weeklyTasks.length > 0;
-      $("#week-list").replaceChildren();
-
-      const visible = expanded.week ? weeklyTasks : weeklyTasks.slice(0, 2);
-
-      visible.forEach(task => {
-        const item = document.createElement("li");
-        const record = document.createElement("span");
-        record.className = "week-record";
-
-        const status = task.completed ? "✓ Done" : "○ Not yet";
-        const completedAt = task.completedAt
-          ? ` — completed ${shortDate(task.completedAt)}`
-          : "";
-        record.textContent = `${status} — ${task.text}${completedAt}`;
-
-        const remove = document.createElement("button");
-        remove.type = "button";
-        remove.className = "delete-button";
-        remove.textContent = "Delete";
-        remove.onclick = () => deleteTask(task.id);
-
-        item.append(record, remove);
-        $("#week-list").append(item);
-      });
-
-      $("#weekMore").hidden = weeklyTasks.length <= 2;
-      $("#weekMore").textContent = expanded.week ? "See less" : "See more";
-      $("#clearDone").disabled = !tasks.some(task => task.completed);
+    function showEmpty(list, message) {
+      const item = document.createElement("li");
+      item.className = "empty";
+      item.textContent = message;
+      list.appendChild(item);
     }
 
     function render() {
-      $("#list").replaceChildren();
+      allTasksList.replaceChildren();
+      weekTasksList.replaceChildren();
+      calendarList.replaceChildren();
 
-      const pending = tasks.filter(task => !task.completed).sort(newestFirst);
-      const done = tasks
-        .filter(task => task.completed)
-        .sort((a, b) =>
-          new Date(b.completedAt || b.startAt) -
-          new Date(a.completedAt || a.startAt)
-        );
+      const sortedTasks = [...tasks].sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        return dateSortValue(a) - dateSortValue(b);
+      });
 
-      const allTasks = [...pending, ...done];
-      const visibleTasks = expanded.tasks ? allTasks : allTasks.slice(0, 5);
+      if (sortedTasks.length) {
+        sortedTasks.forEach(task => allTasksList.appendChild(makeTaskElement(task)));
+      } else {
+        showEmpty(allTasksList, "No tasks yet. Add one above.");
+      }
 
-      $("#empty").hidden = allTasks.length > 0;
-      visibleTasks.forEach(task => $("#list").append(makeTaskRow(task)));
+      // This Week intentionally includes ALL pending tasks.
+      // It does not filter by start date or deadline.
+      const pendingTasks = sortedTasks.filter(task => !task.completed);
 
-      $("#taskMore").hidden = allTasks.length <= 5;
-      $("#taskMore").textContent = expanded.tasks ? "See less" : "See more";
+      if (pendingTasks.length) {
+        pendingTasks.forEach(task => weekTasksList.appendChild(makeTaskElement(task)));
+      } else {
+        showEmpty(weekTasksList, "No pending tasks. Add one above.");
+      }
 
-      renderWeeklySummary();
+      const datedTasks = sortedTasks.filter(task => task.startAt || task.deadline);
+      if (datedTasks.length) {
+        datedTasks.forEach(task => calendarList.appendChild(makeTaskElement(task)));
+      } else {
+        showEmpty(calendarList, "No tasks with dates yet.");
+      }
     }
 
-    function addTask(openCalendarAfter) {
-      $("#deadline").setCustomValidity("");
-      if (!form.reportValidity()) return;
+    form.addEventListener("submit", event => {
+      event.preventDefault();
 
-      const startAt = new Date($("#start").value);
-      const deadlineAt = new Date($("#deadline").value);
-
-      if (deadlineAt < startAt) {
-        $("#deadline").setCustomValidity("Deadline must be after the start time.");
-        $("#deadline").reportValidity();
+      const title = titleInput.value.trim();
+      if (!title) {
+        titleInput.focus();
         return;
       }
-     const pendingTasks = tasks.filter(task => !task.completed);
-      const task = {
-        id: Date.now() + Math.random(),
-        text: $("#task").value.trim(),
-        startAt: startAt.toISOString(),
-        deadlineAt: deadlineAt.toISOString(),
-        createdAt: new Date().toISOString(),
+
+      tasks.push({
+        id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random())),
+        title,
+        startAt: startInput.value,
+        deadline: deadlineInput.value,
         completed: false,
-        completedAt: null
-      };
+        createdAt: new Date().toISOString()
+      });
 
-      tasks.push(task);
-      save();
-      render();
-
-      if (openCalendarAfter) openGoogleCalendar(task);
-
+      saveTasks();
       form.reset();
-      setDefaultTimes();
+      titleInput.focus();
+      render();
+    });
+
+    document.getElementById("weekButton").addEventListener("click", () => {
+      document.getElementById("weekSection").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    });
+
+    document.getElementById("calendarButton").addEventListener("click", () => {
+      calendarPanel.hidden = !calendarPanel.hidden;
+      if (!calendarPanel.hidden) {
+        calendarPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+
+    document.getElementById("closeCalendarButton").addEventListener("click", () => {
+      calendarPanel.hidden = true;
+    });
+
+    document.getElementById("clearDoneButton").addEventListener("click", () => {
+      tasks = tasks.filter(task => !task.completed);
+      saveTasks();
+      render();
+    });
+
+    document.getElementById("copyButton").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(tasks, null, 2));
+        alert("Task records copied.");
+      } catch {
+        alert("Clipboard access was blocked. Try downloading the CSV instead.");
+      }
+    });
+
+    function csvCell(value) {
+      return '"' + String(value ?? "").replaceAll('"', '""') + '"';
     }
 
-    form.onsubmit = event => {
-      event.preventDefault();
-      addTask(false);
-    };
-
-    $("#addCalendar").onclick = () => addTask(true);
-    $("#deadline").oninput = () => $("#deadline").setCustomValidity("");
-
-    $("#taskMore").onclick = () => {
-      expanded.tasks = !expanded.tasks;
-      render();
-    };
-
-    $("#weekMore").onclick = () => {
-      expanded.week = !expanded.week;
-      renderWeeklySummary();
-    };
-
-    $("#clearDone").onclick = () => {
-      const count = tasks.filter(task => task.completed).length;
-      if (!count || !confirm(`Delete all ${count} completed task(s) from this app?`)) return;
-
-      tasks = tasks.filter(task => !task.completed);
-      save();
-      render();
-    };
-
-    $("#settingsToggle").onclick = () => {
-      const panel = $("#settingsPanel");
-      panel.hidden = !panel.hidden;
-      $("#settingsToggle").setAttribute("aria-expanded", String(!panel.hidden));
-    };
-
-    $("#weekToggle").onclick = () => {
-      const section = $("#weeklySummary");
-      section.hidden = !section.hidden;
-      $("#weekToggle").setAttribute("aria-expanded", String(!section.hidden));
-    };
-
-    function exportRows() {
-      return [
-        ["Task", "Status", "Start", "Deadline", "Completed at"],
+    document.getElementById("downloadButton").addEventListener("click", () => {
+      const rows = [
+        ["Task", "Start date/time", "Deadline", "Completed"],
         ...tasks.map(task => [
-          task.text,
-          task.completed ? "Done" : "Not yet",
-          shortDate(task.startAt),
-          shortDate(task.deadlineAt),
-          task.completedAt ? shortDate(task.completedAt) : ""
+          task.title,
+          task.startAt || "",
+          task.deadline || "",
+          task.completed ? "Yes" : "No"
         ])
       ];
-    }
 
-    $("#copyRecords").onclick = async () => {
-      const data = exportRows()
-        .map(row => row.map(value => String(value).replace(/\t|\r?\n/g, " ")).join("\t"))
-        .join("\n");
-
-      try {
-        await navigator.clipboard.writeText(data);
-        alert("Records copied. Paste them into Google Sheets.");
-      } catch {
-        alert("Copy failed. Try using the Download CSV button.");
-      }
-    };
-
-    $("#downloadCsv").onclick = () => {
-      const csv = exportRows()
-        .map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(","))
-        .join("\r\n");
-
-      const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
+      const csv = rows.map(row => row.map(csvCell).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "todo-list-records.csv";
+      link.download = "tasks.csv";
       link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    };
+      URL.revokeObjectURL(url);
+    });
 
-    setDefaultTimes();
+    document.getElementById("settingsButton").addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem(
+        THEME_KEY,
+        document.body.classList.contains("dark") ? "true" : "false"
+      );
+    });
+
+    if (localStorage.getItem(THEME_KEY) === "true") {
+      document.body.classList.add("dark");
+    }
+
     render();
   </script>
 </body>
