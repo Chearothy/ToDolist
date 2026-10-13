@@ -1,268 +1,568 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>To-Do List</title>
-<style>
-  *{box-sizing:border-box}
-  body{margin:0;padding:clamp(16px,4vw,40px);background:#f3f5f7;color:#202124;font-family:Arial,sans-serif}
-  main{max-width:700px;margin:auto;padding:clamp(18px,4vw,28px);background:white;border-radius:16px;box-shadow:0 8px 24px #00000012}
-  h1{margin-top:0}
-  form{display:grid;gap:12px;margin:20px 0}
-  input,button{padding:12px;border:1px solid #c9cdd2;border-radius:9px;font:inherit}
-  #task{width:100%}
-  label{display:block;margin-bottom:6px;font-size:14px}
-  .time-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .time-row input{width:100%}
-  button{cursor:pointer}
-  .export-buttons,.form-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .export-buttons{margin:12px 0}
-  .export-buttons button,.form-actions button{width:100%;min-width:0;padding:11px 6px;color:white;border:0;font-weight:bold}
-  .copy-button,.primary{background:#16834a}
-  .csv-button{background:#2563a6}
-  .calendar-form-button{background:#e8f3ff!important;color:#135ca7!important}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>To-Do List</title>
+  <style>
+    * { box-sizing: border-box; }
 
-  ul{display:grid;gap:8px;margin:0;padding:0;list-style:none}
-  #list>li{display:flex;align-items:center;gap:10px;padding:12px;background:#f7f8f9;border-radius:10px}
-  .check{appearance:none;-webkit-appearance:none;display:grid;place-items:center;width:28px;height:28px;flex:none;margin:0;padding:0;border:2px solid #aeb4b9;border-radius:50%;background:white;cursor:pointer}
-  .check:checked{background:#08a330;border-color:#08a330}
-  .check:checked::after{content:"✓";color:white;font:bold 17px/1 Arial,sans-serif}
-  .task-name{flex:1;overflow-wrap:anywhere}
-  .done .task-name{color:#777;text-decoration:line-through}
-  .task-actions{display:flex;gap:6px}
-  .calendar-button{width:40px;height:40px;padding:0;background:#e8f3ff;color:#135ca7;border:0;font-size:24px}
-  .delete-button{width:auto;padding:9px 12px;background:#feecec;color:#b42318;border:0}
+    body {
+      margin: 0;
+      padding: clamp(16px, 4vw, 40px);
+      background: #f3f5f7;
+      color: #202124;
+      font-family: Arial, sans-serif;
+    }
 
-  .weekly-summary{margin-top:26px;padding:16px;background:#f7f8f9;border-radius:10px}
-  .week-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .week-heading h2{margin:0;font-size:20px}
-  .clear-button,.see-more{width:auto;padding:9px 12px;border:0;border-radius:8px}
-  .clear-button{background:#feecec;color:#b42318}
-  .clear-button:disabled{opacity:.5;cursor:not-allowed}
-  .see-more{margin-top:10px;background:#e8f3ff;color:#135ca7}
-  #week-counts{color:#606770}
-  #week-list>li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid #e1e4e8}
-  .week-record{flex:1;overflow-wrap:anywhere}
-  #empty,#week-empty{color:#6b7280;text-align:center}
+    main {
+      max-width: 700px;
+      margin: auto;
+      padding: clamp(18px, 4vw, 28px);
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px #00000012;
+    }
 
-  @media(max-width:520px){
-    body{padding:12px}
-    main{padding:16px;border-radius:12px}
-    h1{font-size:25px}
-    .time-row{grid-template-columns:1fr}
-    .export-buttons,.form-actions{grid-template-columns:1fr 1fr;gap:8px}
-    .export-buttons button,.form-actions button{min-height:44px;padding:9px 5px;font-size:13px}
-    #list>li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px}
-    .task-name{grid-column:2;min-width:0}
-    .task-actions{grid-column:3;width:auto;padding:0;flex-wrap:nowrap}
-    .calendar-button{width:36px;height:40px;font-size:20px}
-    .delete-button{min-height:40px;padding:8px;font-size:13px;white-space:nowrap}
-    .week-heading{align-items:flex-start;flex-direction:column}
-    #week-list>li{align-items:flex-start}
-    input[type="datetime-local"]{min-width:0;font-size:14px}
-  }
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
 
-  @media(max-width:360px){
-    #list>li{gap:6px;padding:8px}
-    .calendar-button{width:32px}
-    .delete-button{padding:7px 6px;font-size:12px}
-  }
-</style>
+    .title-row h1 { margin: 0; }
+
+    .title-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 14px;
+      border-radius: 9px;
+      background: #16834a;
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .page-link:hover { background: #126b3c; }
+
+    button, input {
+      padding: 12px;
+      border: 1px solid #c9cdd2;
+      border-radius: 9px;
+      font: inherit;
+    }
+
+    button { cursor: pointer; }
+
+    .settings-button {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      background: #f1f3f5;
+      border: 0;
+      font-size: 24px;
+    }
+
+    .settings-panel {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .settings-panel[hidden],
+    .weekly-summary[hidden] {
+      display: none;
+    }
+
+    .export-buttons,
+    .form-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .export-buttons { margin: 0; }
+
+    .export-buttons button,
+    .form-actions button {
+      width: 100%;
+      min-width: 0;
+      padding: 11px 6px;
+      color: white;
+      border: 0;
+      font-weight: bold;
+    }
+
+    .copy-button,
+    .primary {
+      background: #16834a;
+    }
+
+    .csv-button {
+      background: #2563a6;
+    }
+
+    .week-toggle {
+      width: 100%;
+      padding: 11px;
+      background: #e8f3ff;
+      color: #135ca7;
+      border: 0;
+      font-weight: bold;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    #task { width: 100%; }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .time-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .time-row input { width: 100%; }
+
+    .calendar-form-button {
+      background: #e8f3ff !important;
+      color: #135ca7 !important;
+    }
+
+    ul {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #list > li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: #f7f8f9;
+      border-radius: 10px;
+    }
+
+    .check {
+      appearance: none;
+      -webkit-appearance: none;
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      flex: none;
+      margin: 0;
+      padding: 0;
+      border: 2px solid #aeb4b9;
+      border-radius: 50%;
+      background: white;
+      cursor: pointer;
+    }
+
+    .check:checked {
+      background: #08a330;
+      border-color: #08a330;
+    }
+
+    .check:checked::after {
+      content: "✓";
+      color: white;
+      font: bold 17px/1 Arial, sans-serif;
+    }
+
+    .task-name {
+      flex: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .done.task-name {
+      color: #777;
+      text-decoration: line-through;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .calendar-button {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      background: #e8f3ff;
+      color: #135ca7;
+      border: 0;
+      font-size: 24px;
+    }
+
+    .delete-button {
+      width: auto;
+      padding: 9px 12px;
+      background: #feecec;
+      color: #b42318;
+      border: 0;
+    }
+
+    .weekly-summary {
+      margin-top: 26px;
+      padding: 16px;
+      background: #f7f8f9;
+      border-radius: 10px;
+    }
+
+    .week-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .week-heading h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .clear-button,
+    .see-more {
+      width: auto;
+      padding: 9px 12px;
+      border: 0;
+      border-radius: 8px;
+    }
+
+    .clear-button {
+      background: #feecec;
+      color: #b42318;
+    }
+
+    .clear-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .see-more {
+      margin-top: 10px;
+      background: #e8f3ff;
+      color: #135ca7;
+    }
+
+    #week-counts { color: #606770; }
+
+    #week-list > li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+      border-top: 1px solid #e1e4e8;
+    }
+
+    .week-record {
+      flex: 1;
+      overflow-wrap: anywhere;
+    }
+
+    #empty,
+    #week-empty {
+      color: #6b7280;
+      text-align: center;
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 12px; }
+
+      main {
+        padding: 16px;
+        border-radius: 12px;
+      }
+
+      h1 { font-size: 25px; }
+
+      .title-row {
+        align-items: flex-start;
+      }
+
+      .title-actions {
+        flex-shrink: 0;
+      }
+
+      .page-link {
+        min-height: 40px;
+        padding: 0 10px;
+        font-size: 13px;
+      }
+
+      .time-row { grid-template-columns: 1fr; }
+
+      .export-buttons,
+      .form-actions {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .export-buttons button,
+      .form-actions button {
+        min-height: 44px;
+        padding: 9px 5px;
+        font-size: 13px;
+      }
+
+      #list > li {
+        display: grid;
+        grid-template-columns: 28px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+        padding: 10px;
+      }
+
+      .task-name {
+        grid-column: 2;
+        min-width: 0;
+      }
+
+      .task-actions {
+        grid-column: 3;
+        width: auto;
+        padding: 0;
+        flex-wrap: nowrap;
+      }
+
+      .calendar-button {
+        width: 36px;
+        height: 40px;
+        font-size: 20px;
+      }
+
+      .delete-button {
+        min-height: 40px;
+        padding: 8px;
+        font-size: 13px;
+        white-space: nowrap;
+      }
+
+      .week-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      #week-list > li { align-items: flex-start; }
+
+      input[type="datetime-local"] {
+        min-width: 0;
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .title-actions { gap: 5px; }
+
+      .page-link {
+        padding: 0 7px;
+        font-size: 12px;
+      }
+
+      #list > li {
+        gap: 6px;
+        padding: 8px;
+      }
+
+      .calendar-button { width: 32px; }
+
+      .delete-button {
+        padding: 7px 6px;
+        font-size: 12px;
+      }
+    }
+  </style>
 </head>
 <body>
-<main>
-  <h1>My To-Do List</h1>
-
-  <div class="export-buttons">
-    <button id="copyRecords" class="copy-button" type="button">Copy records</button>
-    <button id="downloadCsv" class="csv-button" type="button">Download CSV</button>
-  </div>
-
-  <form id="form">
-    <input id="task" placeholder="What do you need to do?" required>
-
-    <div class="time-row">
-      <div>
-        <label for="start">Start date/time</label>
-        <input id="start" type="datetime-local" required>
-      </div>
-      <div>
-        <label for="deadline">Deadline</label>
-        <input id="deadline" type="datetime-local" required>
+  <main>
+    <div class="title-row">
+      <h1>My To-Do List</h1>
+      <div class="title-actions">
+        <a class="page-link" href="Kotluy.html">Money Tracker</a>
+        <button
+          id="settingsToggle"
+          class="settings-button"
+          type="button"
+          aria-label="Settings"
+          aria-expanded="false"
+          aria-controls="settingsPanel"
+        >⚙</button>
       </div>
     </div>
 
-    <div class="form-actions">
-      <button class="primary" type="submit">Add Task</button>
-      <button id="addCalendar" class="calendar-form-button" type="button">Add Calendar</button>
+    <div id="settingsPanel" class="settings-panel" hidden>
+      <div class="export-buttons">
+        <button id="copyRecords" class="copy-button" type="button">Copy records</button>
+        <button id="downloadCsv" class="csv-button" type="button">Download CSV</button>
+      </div>
+      <button
+        id="weekToggle"
+        class="week-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="weeklySummary"
+      >This Week</button>
     </div>
-  </form>
 
-  <p id="empty">No tasks yet. Add one above.</p>
-  <ul id="list"></ul>
-  <button id="taskMore" class="see-more" type="button" hidden>See more</button>
+    <form id="form">
+      <input id="task" placeholder="What do you need to do?" required>
 
-  <section class="weekly-summary">
-    <div class="week-heading">
-      <h2>This Week</h2>
-      <button id="clearDone" class="clear-button" type="button">Clear all done</button>
-    </div>
-    <p id="week-counts"></p>
-    <p id="week-empty">No tasks scheduled this week.</p>
-    <ul id="week-list"></ul>
-    <button id="weekMore" class="see-more" type="button" hidden>See more</button>
-  </section>
-</main>
+      <div class="time-row">
+        <div>
+          <label for="start">Start date/time</label>
+          <input id="start" type="datetime-local" required>
+        </div>
+        <div>
+          <label for="deadline">Deadline</label>
+          <input id="deadline" type="datetime-local" required>
+        </div>
+      </div>
 
-<script>
-  const $ = selector => document.querySelector(selector);
-  const form = $("#form");
-  const expanded = {tasks:false, week:false};
-  let tasks = [];
+      <div class="form-actions">
+        <button class="primary" type="submit">Add Task</button>
+        <button id="addCalendar" class="calendar-form-button" type="button">Add Calendar</button>
+      </div>
+    </form>
 
-  try {
-    tasks = JSON.parse(localStorage.getItem("todoTasks")) || [];
-  } catch {}
+    <p id="empty">No tasks yet. Add one above.</p>
+    <ul id="list"></ul>
+    <button id="taskMore" class="see-more" type="button" hidden>See more</button>
 
-  function save() {
-    localStorage.setItem("todoTasks", JSON.stringify(tasks));
-  }
+    <section id="weeklySummary" class="weekly-summary" hidden>
+      <div class="week-heading">
+        <h2>This Week</h2>
+        <button id="clearDone" class="clear-button" type="button">Clear all done</button>
+      </div>
+      <p id="week-counts"></p>
+      <p id="week-empty">No tasks scheduled this week.</p>
+      <ul id="week-list"></ul>
+      <button id="weekMore" class="see-more" type="button" hidden>See more</button>
+    </section>
+  </main>
 
-  function localDateTime(date) {
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-      .toISOString().slice(0, 16);
-  }
-function setDefaultTimes() {
-  const now = new Date();
-  const start = new Date(now);
+  <script>
+    const $ = selector => document.querySelector(selector);
+    const form = $("#form");
+    const expanded = { tasks: false, week: false };
+    let tasks = [];
 
-  start.setSeconds(0, 0);
-  if (now.getSeconds() > 0 || now.getMilliseconds() > 0) {
-    start.setMinutes(start.getMinutes() + 1);
-  }
-  start.setMinutes(Math.ceil(start.getMinutes() / 30) * 30);
+    try {
+      tasks = JSON.parse(localStorage.getItem("todoTasks")) || [];
+    } catch {
+      tasks = [];
+    }
 
-  const deadline = new Date(start.getTime() + 60 * 60 * 1000);
+    function save() {
+      localStorage.setItem("todoTasks", JSON.stringify(tasks));
+    }
 
-  $("#start").value = localDateTime(start);
-  $("#deadline").value = localDateTime(deadline);
-}
- 
-  // function setDefaultTimes() {
-  //   const now = new Date();
-  //   $("#start").value = localDateTime(new Date(now.getTime() + 30 * 60 * 1000));
-  //   $("#deadline").value = localDateTime(new Date(now.getTime() + 60 * 60 * 1000));
-  // }
+    function localDateTime(date) {
+      return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+    }
 
-  function shortDate(value) {
-    const date = new Date(value);
-    return Number.isNaN(date.getTime())
-      ? ""
-      : date.toLocaleString([], {dateStyle:"short", timeStyle:"short"});
-  }
+    function setDefaultTimes() {
+      const now = new Date();
+      const start = new Date(now);
 
-  function newestFirst(a, b) {
-    return new Date(b.createdAt || b.startAt) - new Date(a.createdAt || a.startAt);
-  }
+      start.setSeconds(0, 0);
+      if (now.getSeconds() > 0 || now.getMilliseconds() > 0) {
+        start.setMinutes(start.getMinutes() + 1);
+      }
+      start.setMinutes(Math.ceil(start.getMinutes() / 30) * 30);
 
-  function openGoogleCalendar(task) {
-    const calendarDate = value =>
-      new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+      const deadline = new Date(start.getTime() + 60 * 60 * 1000);
 
-    const params = new URLSearchParams({
-      action:"TEMPLATE",
-      text:task.text,
-      dates:`${calendarDate(task.startAt)}/${calendarDate(task.deadlineAt)}`
-    });
+      $("#start").value = localDateTime(start);
+      $("#deadline").value = localDateTime(deadline);
+    }
 
-    const url = `https://calendar.google.com/calendar/render?${params}`;
-    const tab = window.open(url, "_blank");
-    if (!tab) window.location.href = url;
-  }
+    function shortDate(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime())
+        ? ""
+        : date.toLocaleString([], { dateStyle: "short", timeStyle: "short" });
+    }
 
-  function deleteTask(id) {
-    tasks = tasks.filter(task => task.id !== id);
-    save();
-    render();
-  }
+    function newestFirst(a, b) {
+      return new Date(b.createdAt || b.startAt) - new Date(a.createdAt || a.startAt);
+    }
 
-  function makeTaskRow(task) {
-    const item = document.createElement("li");
-    item.className = task.completed ? "done" : "";
+    function openGoogleCalendar(task) {
+      const calendarDate = value =>
+        new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 
-    const check = document.createElement("input");
-    check.type = "checkbox";
-    check.className = "check";
-    check.checked = !!task.completed;
-    check.setAttribute("aria-label", `Mark ${task.text} complete`);
-    check.onchange = () => {
-      task.completed = check.checked;
-      task.completedAt = check.checked ? new Date().toISOString() : null;
+      const params = new URLSearchParams({
+        action: "TEMPLATE",
+        text: task.text,
+        dates: `${calendarDate(task.startAt)}/${calendarDate(task.deadlineAt)}`
+      });
+
+      const url = `https://calendar.google.com/calendar/render?${params}`;
+      const tab = window.open(url, "_blank");
+      if (!tab) window.location.href = url;
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter(task => task.id !== id);
       save();
       render();
-    };
+    }
 
-    const name = document.createElement("span");
-    name.className = "task-name";
-    name.textContent = task.text;
-
-    const actions = document.createElement("div");
-    actions.className = "task-actions";
-
-    const calendar = document.createElement("button");
-    calendar.type = "button";
-    calendar.className = "calendar-button";
-    calendar.textContent = "+";
-    calendar.title = "Add to Calendar";
-    calendar.setAttribute("aria-label", `Add ${task.text} to Calendar`);
-    calendar.onclick = () => openGoogleCalendar(task);
-
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "delete-button";
-    remove.textContent = "Delete";
-    remove.onclick = () => deleteTask(task.id);
-
-    actions.append(calendar, remove);
-    item.append(check, name, actions);
-    return item;
-  }
-
-  function renderWeeklySummary() {
-    const monday = new Date();
-    monday.setDate(monday.getDate() - (monday.getDay() + 6) % 7);
-    monday.setHours(0, 0, 0, 0);
-
-    const nextMonday = new Date(monday);
-    nextMonday.setDate(nextMonday.getDate() + 7);
-
-    const weeklyTasks = tasks
-      .filter(task => {
-        const start = new Date(task.startAt);
-        return !Number.isNaN(start.getTime()) && start >= monday && start < nextMonday;
-      })
-      .sort(newestFirst);
-
-    const doneCount = weeklyTasks.filter(task => task.completed).length;
-    $("#week-counts").textContent =
-      `${doneCount} done · ${weeklyTasks.length - doneCount} not yet · ${weeklyTasks.length} total`;
-
-    $("#week-empty").hidden = weeklyTasks.length > 0;
-    $("#week-list").replaceChildren();
-
-    const visible = expanded.week ? weeklyTasks : weeklyTasks.slice(0, 2);
-
-    visible.forEach(task => {
+    function makeTaskRow(task) {
       const item = document.createElement("li");
-      const record = document.createElement("span");
-      record.className = "week-record";
 
-      const status = task.completed ? "✓ Done" : "○ Not yet";
-      const completedAt = task.completedAt
-        ? ` — completed ${shortDate(task.completedAt)}`
-        : "";
-      record.textContent = `${status} — ${task.text}${completedAt}`;
+      const check = document.createElement("input");
+      check.type = "checkbox";
+      check.className = "check";
+      check.checked = !!task.completed;
+      check.setAttribute("aria-label", `Mark ${task.text} complete`);
+      check.onchange = () => {
+        task.completed = check.checked;
+        task.completedAt = check.checked ? new Date().toISOString() : null;
+        save();
+        render();
+      };
+
+      const name = document.createElement("span");
+      name.className = task.completed ? "task-name done" : "task-name";
+      name.textContent = task.text;
+
+      const actions = document.createElement("div");
+      actions.className = "task-actions";
+
+      const calendar = document.createElement("button");
+      calendar.type = "button";
+      calendar.className = "calendar-button";
+      calendar.textContent = "+";
+      calendar.title = "Add to Calendar";
+      calendar.setAttribute("aria-label", `Add ${task.text} to Calendar`);
+      calendar.onclick = () => openGoogleCalendar(task);
 
       const remove = document.createElement("button");
       remove.type = "button";
@@ -270,140 +570,198 @@ function setDefaultTimes() {
       remove.textContent = "Delete";
       remove.onclick = () => deleteTask(task.id);
 
-      item.append(record, remove);
-      $("#week-list").append(item);
-    });
-
-    $("#weekMore").hidden = weeklyTasks.length <= 2;
-    $("#weekMore").textContent = expanded.week ? "See less" : "See more";
-    $("#clearDone").disabled = !tasks.some(task => task.completed);
-  }
-
-  function render() {
-    $("#list").replaceChildren();
-
-    const pending = tasks.filter(task => !task.completed).sort(newestFirst);
-    const done = tasks
-      .filter(task => task.completed)
-      .sort((a, b) =>
-        new Date(b.completedAt || b.startAt) -
-        new Date(a.completedAt || a.startAt)
-      );
-
-    const allTasks = [...pending, ...done];
-    const visibleTasks = expanded.tasks ? allTasks : allTasks.slice(0, 5);
-
-    $("#empty").hidden = allTasks.length > 0;
-    visibleTasks.forEach(task => $("#list").append(makeTaskRow(task)));
-
-    $("#taskMore").hidden = allTasks.length <= 5;
-    $("#taskMore").textContent = expanded.tasks ? "See less" : "See more";
-
-    renderWeeklySummary();
-  }
-
-  function addTask(openCalendarAfter) {
-    $("#deadline").setCustomValidity("");
-    if (!form.reportValidity()) return;
-
-    const startAt = new Date($("#start").value);
-    const deadlineAt = new Date($("#deadline").value);
-
-    if (deadlineAt < startAt) {
-      $("#deadline").setCustomValidity("Deadline must be after the start time.");
-      $("#deadline").reportValidity();
-      return;
+      actions.append(calendar, remove);
+      item.append(check, name, actions);
+      return item;
     }
 
-    const task = {
-      id:Date.now() + Math.random(),
-      text:$("#task").value.trim(),
-      startAt:startAt.toISOString(),
-      deadlineAt:deadlineAt.toISOString(),
-      createdAt:new Date().toISOString(),
-      completed:false,
-      completedAt:null
+    function renderWeeklySummary() {
+      const monday = new Date();
+      monday.setDate(monday.getDate() - (monday.getDay() + 6) % 7);
+      monday.setHours(0, 0, 0, 0);
+
+      const nextMonday = new Date(monday);
+      nextMonday.setDate(nextMonday.getDate() + 7);
+
+      const weeklyTasks = tasks
+        .filter(task => {
+          const start = new Date(task.startAt);
+          return !Number.isNaN(start.getTime()) && start >= monday && start < nextMonday;
+        })
+        .sort(newestFirst);
+
+      const doneCount = weeklyTasks.filter(task => task.completed).length;
+      $("#week-counts").textContent =
+        `${doneCount} done · ${weeklyTasks.length - doneCount} not yet · ${weeklyTasks.length} total`;
+
+      $("#week-empty").hidden = weeklyTasks.length > 0;
+      $("#week-list").replaceChildren();
+
+      const visible = expanded.week ? weeklyTasks : weeklyTasks.slice(0, 2);
+
+      visible.forEach(task => {
+        const item = document.createElement("li");
+        const record = document.createElement("span");
+        record.className = "week-record";
+
+        const status = task.completed ? "✓ Done" : "○ Not yet";
+        const completedAt = task.completedAt
+          ? ` — completed ${shortDate(task.completedAt)}`
+          : "";
+        record.textContent = `${status} — ${task.text}${completedAt}`;
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "delete-button";
+        remove.textContent = "Delete";
+        remove.onclick = () => deleteTask(task.id);
+
+        item.append(record, remove);
+        $("#week-list").append(item);
+      });
+
+      $("#weekMore").hidden = weeklyTasks.length <= 2;
+      $("#weekMore").textContent = expanded.week ? "See less" : "See more";
+      $("#clearDone").disabled = !tasks.some(task => task.completed);
+    }
+
+    function render() {
+      $("#list").replaceChildren();
+
+      const pending = tasks.filter(task => !task.completed).sort(newestFirst);
+      const done = tasks
+        .filter(task => task.completed)
+        .sort((a, b) =>
+          new Date(b.completedAt || b.startAt) -
+          new Date(a.completedAt || a.startAt)
+        );
+
+      const allTasks = [...pending, ...done];
+      const visibleTasks = expanded.tasks ? allTasks : allTasks.slice(0, 5);
+
+      $("#empty").hidden = allTasks.length > 0;
+      visibleTasks.forEach(task => $("#list").append(makeTaskRow(task)));
+
+      $("#taskMore").hidden = allTasks.length <= 5;
+      $("#taskMore").textContent = expanded.tasks ? "See less" : "See more";
+
+      renderWeeklySummary();
+    }
+
+    function addTask(openCalendarAfter) {
+      $("#deadline").setCustomValidity("");
+      if (!form.reportValidity()) return;
+
+      const startAt = new Date($("#start").value);
+      const deadlineAt = new Date($("#deadline").value);
+
+      if (deadlineAt < startAt) {
+        $("#deadline").setCustomValidity("Deadline must be after the start time.");
+        $("#deadline").reportValidity();
+        return;
+      }
+
+      const task = {
+        id: Date.now() + Math.random(),
+        text: $("#task").value.trim(),
+        startAt: startAt.toISOString(),
+        deadlineAt: deadlineAt.toISOString(),
+        createdAt: new Date().toISOString(),
+        completed: false,
+        completedAt: null
+      };
+
+      tasks.push(task);
+      save();
+      render();
+
+      if (openCalendarAfter) openGoogleCalendar(task);
+
+      form.reset();
+      setDefaultTimes();
+    }
+
+    form.onsubmit = event => {
+      event.preventDefault();
+      addTask(false);
     };
 
-    tasks.push(task);
-    save();
-    render();
+    $("#addCalendar").onclick = () => addTask(true);
+    $("#deadline").oninput = () => $("#deadline").setCustomValidity("");
 
-    if (openCalendarAfter) openGoogleCalendar(task);
+    $("#taskMore").onclick = () => {
+      expanded.tasks = !expanded.tasks;
+      render();
+    };
 
-    form.reset();
-    setDefaultTimes();
-  }
+    $("#weekMore").onclick = () => {
+      expanded.week = !expanded.week;
+      renderWeeklySummary();
+    };
 
-  form.onsubmit = event => {
-    event.preventDefault();
-    addTask(false);
-  };
+    $("#clearDone").onclick = () => {
+      const count = tasks.filter(task => task.completed).length;
+      if (!count || !confirm(`Delete all ${count} completed task(s) from this app?`)) return;
 
-  $("#addCalendar").onclick = () => addTask(true);
-  $("#deadline").oninput = () => $("#deadline").setCustomValidity("");
+      tasks = tasks.filter(task => !task.completed);
+      save();
+      render();
+    };
 
-  $("#taskMore").onclick = () => {
-    expanded.tasks = !expanded.tasks;
-    render();
-  };
+    $("#settingsToggle").onclick = () => {
+      const panel = $("#settingsPanel");
+      panel.hidden = !panel.hidden;
+      $("#settingsToggle").setAttribute("aria-expanded", String(!panel.hidden));
+    };
 
-  $("#weekMore").onclick = () => {
-    expanded.week = !expanded.week;
-    renderWeeklySummary();
-  };
+    $("#weekToggle").onclick = () => {
+      const section = $("#weeklySummary");
+      section.hidden = !section.hidden;
+      $("#weekToggle").setAttribute("aria-expanded", String(!section.hidden));
+    };
 
-  $("#clearDone").onclick = () => {
-    const count = tasks.filter(task => task.completed).length;
-    if (!count || !confirm(`Delete all ${count} completed task(s) from this app?`)) return;
-
-    tasks = tasks.filter(task => !task.completed);
-    save();
-    render();
-  };
-
-  function exportRows() {
-    return [
-      ["Task","Status","Start","Deadline","Completed at"],
-      ...tasks.map(task => [
-        task.text,
-        task.completed ? "Done" : "Not yet",
-        shortDate(task.startAt),
-        shortDate(task.deadlineAt),
-        task.completedAt ? shortDate(task.completedAt) : ""
-      ])
-    ];
-  }
-
-  $("#copyRecords").onclick = async () => {
-    const data = exportRows()
-      .map(row => row.map(value => String(value).replace(/\t|\r?\n/g, " ")).join("\t"))
-      .join("\n");
-
-    try {
-      await navigator.clipboard.writeText(data);
-      alert("Records copied. Paste them into Google Sheets.");
-    } catch {
-      alert("Copy failed. Try using the Download CSV button.");
+    function exportRows() {
+      return [
+        ["Task", "Status", "Start", "Deadline", "Completed at"],
+        ...tasks.map(task => [
+          task.text,
+          task.completed ? "Done" : "Not yet",
+          shortDate(task.startAt),
+          shortDate(task.deadlineAt),
+          task.completedAt ? shortDate(task.completedAt) : ""
+        ])
+      ];
     }
-  };
 
-  $("#downloadCsv").onclick = () => {
-    const csv = exportRows()
-      .map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(","))
-      .join("\r\n");
+    $("#copyRecords").onclick = async () => {
+      const data = exportRows()
+        .map(row => row.map(value => String(value).replace(/\t|\r?\n/g, " ")).join("\t"))
+        .join("\n");
 
-    const blob = new Blob(["\uFEFF", csv], {type:"text/csv;charset=utf-8"});
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "todo-list-records.csv";
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
+      try {
+        await navigator.clipboard.writeText(data);
+        alert("Records copied. Paste them into Google Sheets.");
+      } catch {
+        alert("Copy failed. Try using the Download CSV button.");
+      }
+    };
 
-  setDefaultTimes();
-  render();
-</script>
+    $("#downloadCsv").onclick = () => {
+      const csv = exportRows()
+        .map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(","))
+        .join("\r\n");
+
+      const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "todo-list-records.csv";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    };
+
+    setDefaultTimes();
+    render();
+  </script>
 </body>
 </html>
