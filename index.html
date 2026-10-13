@@ -660,7 +660,7 @@
         $("#deadline").reportValidity();
         return;
       }
-
+     const pendingTasks = tasks.filter(task => !task.completed);
       const task = {
         id: Date.now() + Math.random(),
         text: $("#task").value.trim(),
