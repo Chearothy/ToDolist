@@ -438,8 +438,7 @@
                      placeholder="0.00" required />
               <select id="entryCurrency" aria-label="Currency for this amount">
                  <option value="KHR">KHR</option>
-                <option value="USD">USD</option>
-                
+                 <option value="USD">USD</option>
               </select>
             </div>
           </div>
@@ -686,7 +685,9 @@
     const savedPreferences = readPreferences();
 
     let language = savedPreferences.language === "km" ? "km" : "en";
-    let displayCurrency = savedPreferences.currency === "KHR" ? "KHR" : "USD";
+    let displayCurrency = language === "km" ? "KHR" : "USD";
+
+    // let displayCurrency = savedPreferences.currency === "KHR" ? "KHR" : "USD";
     let exchangeRate = Number(savedPreferences.exchangeRate) > 0
       ? Number(savedPreferences.exchangeRate)
       : 4000;
@@ -1010,12 +1011,17 @@
         descriptionSuggestionInput.value = "";
       }
     });
-
     document.getElementById("languageButton").addEventListener("click", () => {
-      language = language === "en" ? "km" : "en";
-      savePreferences();
-      applyLanguage();
-    });
+  language = language === "en" ? "km" : "en";
+
+  // English uses USD; Khmer uses KHR.
+  displayCurrency = language === "km" ? "KHR" : "USD";
+  currencySelect.value = displayCurrency;
+  entryCurrencyInput.value = displayCurrency;
+
+  savePreferences();
+  applyLanguage();
+});
 
     currencySelect.addEventListener("change", () => {
       displayCurrency = currencySelect.value;
