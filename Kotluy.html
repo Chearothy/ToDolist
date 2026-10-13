@@ -16,7 +16,7 @@
       --line: #e8ece9;
       --surface: #fff;
       --background: #f4f7f4;
-      --shadow: 0 8px 24px rgba(35, 65, 48, 0.045);
+      --shadow: 0 8px 24px rgba(35, 65, 48, .045);
     }
 
     * { box-sizing: border-box; }
@@ -46,23 +46,11 @@
       margin: 0 0 8px;
       font-size: clamp(25px, 3vw, 38px);
       font-weight: 800;
-      letter-spacing: -0.5px;
     }
 
-    h2 {
-      margin: 0 0 22px;
-      font-size: 21px;
-      font-weight: 750;
-    }
-
+    h2 { margin: 0 0 22px; font-size: 21px; font-weight: 750; }
     p { margin-top: 0; }
-
-    .subtitle {
-      margin-bottom: 0;
-      color: var(--muted);
-      font-size: 16px;
-    }
-
+    .subtitle { margin: 0; color: var(--muted); font-size: 16px; }
     button, input, select { font: inherit; }
 
     button {
@@ -71,12 +59,10 @@
       border-radius: 12px;
       padding: 13px 19px;
       font-weight: 700;
-      transition: transform 0.15s ease, background 0.15s ease;
+      transition: transform .15s ease, background .15s ease;
     }
 
-    button:hover, .page-link:hover {
-      transform: translateY(-1px);
-    }
+    button:hover, .page-link:hover { transform: translateY(-1px); }
 
     .header-actions {
       display: flex;
@@ -85,13 +71,9 @@
       gap: 12px;
     }
 
-    .header-actions button, .header-actions a {
-      min-height: 52px;
-    }
+    .header-actions button, .header-actions a { min-height: 52px; }
 
-    .page-link,
-    .language-button,
-    .export-button {
+    .page-link, .language-button, .export-button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -111,6 +93,19 @@
       border-radius: 12px;
       background: var(--surface);
       color: var(--ink);
+    }
+
+    .create-list-icon {
+      width: 52px;
+      min-width: 52px;
+      min-height: 52px;
+      padding: 0;
+      border: 1px solid #d8ebe1;
+      border-radius: 12px;
+      background: var(--green-soft);
+      color: var(--green-dark);
+      font-size: 30px;
+      line-height: 1;
     }
 
     .preferences {
@@ -136,21 +131,12 @@
       font-size: 14px;
     }
 
-    .settings-create,
-    .settings-export {
-      display: flex;
-      align-items: end;
-    }
-
-    .settings-create button,
-    .settings-export button {
-      width: 100%;
-      min-height: 54px;
-    }
+    .settings-export { display: flex; align-items: end; }
+    .settings-export button { width: 100%; min-height: 54px; }
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(340px, 0.36fr) minmax(0, 1fr);
+      grid-template-columns: minmax(340px, .36fr) minmax(0, 1fr);
       gap: 28px;
       align-items: start;
     }
@@ -190,7 +176,7 @@
 
     input:focus, select:focus {
       border-color: var(--green);
-      box-shadow: 0 0 0 4px rgba(32, 135, 103, 0.10);
+      box-shadow: 0 0 0 4px rgba(32, 135, 103, .10);
     }
 
     .amount-entry {
@@ -220,10 +206,7 @@
       margin-bottom: 24px;
     }
 
-    .summary-card {
-      min-width: 0;
-      padding: 24px;
-    }
+    .summary-card { min-width: 0; padding: 24px; }
 
     .summary-label {
       margin-bottom: 12px;
@@ -244,7 +227,7 @@
 
     .category-row {
       display: grid;
-      grid-template-columns: minmax(90px, 0.2fr) minmax(80px, 1fr) minmax(100px, auto);
+      grid-template-columns: minmax(90px, .2fr) minmax(80px, 1fr) minmax(100px, auto);
       gap: 16px;
       align-items: center;
       margin: 18px 0;
@@ -293,13 +276,9 @@
       white-space: nowrap;
     }
 
-    th {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
-    }
-
+    th { color: var(--muted); font-size: 13px; font-weight: 700; }
     td:first-child, th:first-child { padding-left: 0; }
+
     td:last-child, th:last-child {
       padding-right: 0;
       text-align: right;
@@ -318,21 +297,10 @@
       color: var(--muted);
       text-align: center;
     }
-    .create-list-icon {
-  width: 52px;
-  min-width: 52px;
-  min-height: 52px;
-  padding: 0;
-  border: 1px solid #d8ebe1;
-  border-radius: 12px;
-  background: var(--green-soft);
-  color: var(--green-dark);
-  font-size: 30px;
-  line-height: 1;
-}
+
     @media (max-width: 1050px) {
       .layout {
-        grid-template-columns: minmax(280px, 0.4fr) minmax(0, 1fr);
+        grid-template-columns: minmax(280px, .4fr) minmax(0, 1fr);
         gap: 18px;
       }
 
@@ -347,70 +315,70 @@
         padding: 28px 0;
       }
 
-      header {
-        align-items: flex-start;
-        flex-wrap: wrap;
-      }
-
+      header { align-items: flex-start; flex-wrap: wrap; }
       .layout { grid-template-columns: 1fr; }
       .entry-card { position: static; }
     }
 
-
-    
     @media (max-width: 600px) {
       .app {
-        width: min(100% - 24px, 520px);
-        padding: 20px 0;
+        width: calc(100% - 20px);
+        padding: 14px 0;
       }
 
       header {
-        gap: 18px;
-        margin-bottom: 20px;
+        gap: 12px;
+        margin-bottom: 14px;
       }
 
-      h1 { font-size: 25px; }
+      h1 {
+        margin-bottom: 4px;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      h2 { margin-bottom: 14px; font-size: 17px; }
+      .subtitle { font-size: 13px; }
 
       .header-actions {
-        width: 100%;
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        width: 100%;
+        gap: 6px;
       }
-        .header-actions {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
 
-  .header-actions .create-list-icon {
-    width: 100%;
-    min-width: 0;
-    padding: 0;
-    font-size: 25px;
-  }
       .header-actions > * {
+        min-width: 0;
+        min-height: 42px;
+        padding: 8px 4px;
+        border-radius: 10px;
+        font-size: 11px;
+        line-height: 1.15;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .header-actions .create-list-icon {
         width: 100%;
         min-width: 0;
-      }
-
-      .page-link, .settings-button, .language-button {
-        padding: 11px 9px;
-        font-size: 14px;
+        padding: 0;
+        font-size: 25px;
       }
 
       .preferences {
         grid-template-columns: 1fr;
         gap: 14px;
         margin-bottom: 20px;
-        padding: 18px;
-        border-radius: 16px;
+        padding: 16px;
       }
 
       .rate-hint { grid-column: auto; }
+      .settings-export button { width: 100%; }
 
       .summary {
         grid-template-columns: 1fr;
-        gap: 10px;
-        margin-bottom: 16px;
+        gap: 8px;
+        margin-bottom: 12px;
       }
 
       .summary-card {
@@ -418,20 +386,35 @@
         justify-content: space-between;
         align-items: center;
         gap: 12px;
-        padding: 17px;
+        padding: 13px;
         border-radius: 15px;
       }
 
-      .summary-label { margin: 0; }
-      .summary-value { font-size: 21px; }
-      .card { padding: 18px; }
+      .summary-label { margin: 0; font-size: 12px; }
+      .summary-value { font-size: 18px; }
+      .card { padding: 16px; border-radius: 15px; }
+      .field { margin-bottom: 14px; }
+      label { font-size: 13px; }
+
+      input, select {
+        min-height: 46px;
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+
+      .amount-entry {
+        grid-template-columns: minmax(0, 1fr) 88px;
+        gap: 7px;
+      }
+
+      .submit-button { min-height: 48px; font-size: 15px; }
       .toolbar { flex-direction: column; }
       .toolbar select { width: 100%; }
 
       .category-row {
-        grid-template-columns: 78px minmax(25px, 1fr) 92px;
-        gap: 8px;
-        font-size: 13px;
+        grid-template-columns: 70px minmax(20px, 1fr) 82px;
+        gap: 7px;
+        font-size: 12px;
       }
 
       .category-amount { font-size: 12px; }
@@ -506,20 +489,24 @@
 <body>
   <div class="app">
     <header>
-      <div>
-        <h1 data-i18n="title">My Money Tracker</h1>
-        <p class="subtitle" data-i18n="subtitle">Track your income and spending.</p>
+      <div style="width: 500px;">
+        <h1 data-i18n="title">My Money Tracker</h1> 
+        <select id="listSelect" style="width: 100%;"></select>
+        <!-- <p class="subtitle" data-i18n="subtitle">Track your income and spending.</p> -->
       </div>
 
       <div class="header-actions">
-        <a class="page-link" href="index.html">To_Do_List</a>
+        <button class="create-list-icon" id="createListButton" type="button"
+                title="Create list" aria-label="Create list">+</button>
+        <button class="language-button" id="languageButton" type="button">ខ្មែរ</button>
         <button id="settingsButton" class="settings-button" type="button"
                 aria-expanded="false" aria-controls="settingsPanel"
                 data-i18n="settings">Settings</button>
-        <button class="language-button" id="languageButton" type="button">ខ្មែរ</button>
-
-         <button class="create-list-icon" id="createListButton" type="button"
-          title="Create list" aria-label="Create list">+</button>
+        <a class="page-link" href="index.html">ToDo</a>
+        
+       
+        
+               
       </div>
     </header>
 
@@ -531,24 +518,11 @@
         <input id="exchangeRate" type="number" min="0.0001" step="0.01" value="4000" />
       </div>
 
-      <div class="field">
-        <label for="currencySelect" data-i18n="displayCurrency">
-          Currency for totals
-        </label>
+      <div class="field" >
         <select id="currencySelect" aria-label="Display currency">
           <option value="USD">US dollar (USD)</option>
           <option value="KHR">Cambodian riel (KHR)</option>
         </select>
-      </div>
-
-      <div class="field">
-        <label for="listSelect" data-i18n="recordList">Record list</label>
-        <select id="listSelect"></select>
-      </div>
-
-      <div class="settings-create">
-        <button class="settings-button" id="createListButton" type="button"
-                data-i18n="createList">Create list</button>
       </div>
 
       <div class="settings-export">
@@ -559,25 +533,17 @@
       <p class="rate-hint" id="rateHint"></p>
     </section>
 
-    <div class="layout">
+    <div class="layout" >
       <aside class="card entry-card">
         <h2 data-i18n="addHeading">Add a transaction</h2>
 
         <form id="transactionForm">
-          <div class="field">
-            <label for="description" data-i18n="description">Description</label>
-            <input id="description" type="text" maxlength="60"
-                   list="descriptionSuggestions"
-                   placeholder="e.g. Lunch or monthly salary"
-                   data-i18n-placeholder="descriptionPlaceholder" required />
-            <datalist id="descriptionSuggestions"></datalist>
 
-            <label for="descriptionSuggestion" class="suggestion-label"
-                   data-i18n="descriptionSuggestion">
-              Quick suggestions (optional)
-            </label>
-            <select id="descriptionSuggestion">
-              <option value="" data-i18n="chooseSuggestion">Choose a suggestion…</option>
+            <div class="field">
+            <label for="type" data-i18n="type">Type</label>
+            <select id="type">
+              <option value="expense" data-i18n="expense">Expense</option>
+              <option value="income" data-i18n="income">Income</option>
             </select>
           </div>
 
@@ -593,12 +559,27 @@
             </div>
           </div>
 
+
+
           <div class="field">
-            <label for="type" data-i18n="type">Type</label>
-            <select id="type">
-              <option value="expense" data-i18n="expense">Expense</option>
-              <option value="income" data-i18n="income">Income</option>
+             <label for="descriptionSuggestion" class="suggestion-label"
+                   data-i18n="descriptionSuggestion">
+              Quick suggestions (optional)
+            </label>
+            <select id="descriptionSuggestion">
+              <option value="" data-i18n="chooseSuggestion">Choose a suggestion…</option>
             </select>
+
+
+
+            <br><br><label for="description" data-i18n="description">Description</label>
+            <input id="description" type="text" maxlength="60"
+                   list="descriptionSuggestions"
+                   placeholder="e.g. Lunch or monthly salary"
+                   data-i18n-placeholder="descriptionPlaceholder" required />
+            <datalist id="descriptionSuggestions"></datalist>
+
+           
           </div>
 
           <div class="field">
@@ -702,7 +683,6 @@
         subtitle: "Track your income and spending.",
         settings: "Settings",
         export: "Export CSV",
-        displayCurrency: "Currency for totals",
         recordList: "Record list",
         createList: "Create list",
         newListPrompt: "Name this list (for example, Expenses for my sister):",
@@ -752,7 +732,6 @@
         subtitle: "តាមដានប្រាក់ចំណូល និងការចំណាយរបស់អ្នក។",
         settings: "ការកំណត់",
         export: "នាំចេញ CSV",
-        displayCurrency: "រូបិយប័ណ្ណសម្រាប់សរុប",
         recordList: "បញ្ជីកំណត់ត្រា",
         createList: "បង្កើតបញ្ជីថ្មី",
         newListPrompt: "ដាក់ឈ្មោះបញ្ជីនេះ៖",
@@ -816,6 +795,7 @@
     const listSelect = document.getElementById("listSelect");
     const settingsButton = document.getElementById("settingsButton");
     const settingsPanel = document.getElementById("settingsPanel");
+    const createListButton = document.getElementById("createListButton");
 
     function makeId() {
       return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -831,10 +811,7 @@
 
     const savedPreferences = readPreferences();
     let language = savedPreferences.language === "km" ? "km" : "en";
-
-    // Default currency follows language: English = USD; Khmer = KHR.
     let displayCurrency = language === "km" ? "KHR" : "USD";
-
     let exchangeRate = Number(savedPreferences.exchangeRate) > 0
       ? Number(savedPreferences.exchangeRate)
       : 4000;
@@ -859,13 +836,16 @@
           if (validLists.length > 0) return validLists;
         }
       } catch {
-        // If saved list data cannot be read, load old transactions below.
+        // Load any older single-list transactions below.
       }
 
-      // Migrate transactions from the previous single-list version.
       let oldTransactions = [];
+
       try {
-        const old = JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY) || "[]");
+        const old = JSON.parse(
+          localStorage.getItem(LEGACY_STORAGE_KEY) || "[]"
+        );
+
         if (Array.isArray(old)) {
           oldTransactions = old.map((item) => ({
             ...item,
@@ -927,7 +907,6 @@
 
     function convertAmount(amount, fromCurrency) {
       if (fromCurrency === displayCurrency) return amount;
-
       return fromCurrency === "USD"
         ? amount * exchangeRate
         : amount / exchangeRate;
@@ -1089,6 +1068,9 @@
           : "រូបិយប័ណ្ណសម្រាប់ចំនួននេះ"
       );
 
+      createListButton.setAttribute("aria-label", t("createList"));
+      createListButton.title = t("createList");
+
       document.getElementById("rateHint").textContent =
         t("rateLine").replace("{rate}", exchangeRate.toLocaleString()) +
         " · " + t("rateHint");
@@ -1213,7 +1195,10 @@
         deleteButton.className = "delete-button";
         deleteButton.type = "button";
         deleteButton.textContent = t("delete");
-        deleteButton.setAttribute("aria-label", `${t("delete")} ${item.description}`);
+        deleteButton.setAttribute(
+          "aria-label",
+          `${t("delete")} ${item.description}`
+        );
         deleteButton.addEventListener("click", () => deleteTransaction(item.id));
         actionCell.appendChild(deleteButton);
         row.appendChild(actionCell);
@@ -1270,7 +1255,7 @@
       settingsButton.setAttribute("aria-expanded", String(!settingsPanel.hidden));
     });
 
-    document.getElementById("createListButton").addEventListener("click", () => {
+    createListButton.addEventListener("click", () => {
       const answer = prompt(t("newListPrompt"));
       if (!answer || !answer.trim()) return;
 
@@ -1389,15 +1374,11 @@
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-
-      const safeListName = activeList.name
-        .replace(/[^\w-]+/g, "-")
-        .replace(/^-+|-+$/g, "") || "list";
+      const safeName = activeList.name.replace(/[^\w-]+/g, "-") || "list";
 
       link.href = url;
-      link.download = `money-tracker-${safeListName}.csv`;
+      link.download = `money-tracker-${safeName}.csv`;
       link.click();
-
       URL.revokeObjectURL(url);
     });
 
